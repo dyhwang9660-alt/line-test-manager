@@ -1,16 +1,20 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Home from '@/pages/Home'
+import TestDetail from '@/pages/TestDetail'
+import RunForm from '@/pages/RunForm'
+import Compare from '@/pages/Compare'
 
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<div>Home</div>} />
-        <Route path="/tests/:testId" element={<div>Detail</div>} />
-        <Route path="/tests/:testId/runs/:runId" element={<div>Form</div>} />
-        <Route path="/tests/:testId/compare" element={<div>Compare</div>} />
-      </Routes>
+      <div className="max-w-md mx-auto min-h-screen bg-white">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/tests/:testId" element={<TestDetail />} />
+          <Route path="/tests/:testId/runs/:runId" element={<RunForm />} />
+          <Route path="/tests/:testId/compare" element={<Compare />} />
+        </Routes>
+      </div>
     </BrowserRouter>
   )
 }
-
-export default App
