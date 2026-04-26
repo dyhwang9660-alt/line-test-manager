@@ -13,7 +13,11 @@ export function loadTests(): LineTest[] {
 }
 
 export function saveTests(tests: LineTest[]): void {
-  localStorage.setItem(TESTS_KEY, JSON.stringify(tests))
+  try {
+    localStorage.setItem(TESTS_KEY, JSON.stringify(tests))
+  } catch (e) {
+    console.error('[storage] saveTests failed:', e)
+  }
 }
 
 export function loadDrafts(): Record<string, Draft> {
@@ -26,5 +30,9 @@ export function loadDrafts(): Record<string, Draft> {
 }
 
 export function saveDrafts(drafts: Record<string, Draft>): void {
-  localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts))
+  try {
+    localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts))
+  } catch (e) {
+    console.error('[storage] saveDrafts failed:', e)
+  }
 }

@@ -45,8 +45,10 @@ export function buildChangedChips(
       const prevVal = prevActuals[leg] ?? ''
       const currVal = currActuals[leg] ?? ''
       if (String(prevVal) !== String(currVal)) {
-        const diff = typeof currVal === 'number' && typeof prevVal === 'number'
-          ? (currVal - prevVal > 0 ? `+${currVal - prevVal}` : `${currVal - prevVal}`)
+        const prevNum = parseFloat(String(prevVal))
+        const currNum = parseFloat(String(currVal))
+        const diff = !isNaN(prevNum) && !isNaN(currNum)
+          ? (currNum - prevNum > 0 ? `+${currNum - prevNum}` : `${currNum - prevNum}`)
           : String(currVal)
         chips.push(`${item.label} ${diff}${item.unit}`)
         break

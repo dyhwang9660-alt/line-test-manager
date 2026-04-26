@@ -48,7 +48,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const test = tests.find(t => t.id === testId)
     if (!test) return 0
     const prevRun = test.runs[test.runs.length - 1]
-    const newRunId = (prevRun?.id ?? 0) + 1
+    const newRunId = test.runs.length > 0 ? Math.max(...test.runs.map(r => r.id)) + 1 : 1
     const newRun: Run = {
       id: newRunId,
       label: `Run ${newRunId}`,
