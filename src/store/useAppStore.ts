@@ -1,26 +1,33 @@
 import { create } from 'zustand'
 import { nanoid } from 'nanoid'
-import type { LineTest, Run, Draft } from '@/types'
-import { loadTests, saveTests, loadDrafts, saveDrafts } from '@/lib/storage'
+import type { LineTest, Run, Draft, Folder } from '@/types'
+import { loadTests, saveTests, loadDrafts, saveDrafts, loadFolders, saveFolders } from '@/lib/storage'
 import { DEFAULT_TEMPLATE, makeEmptyConditions } from '@/lib/defaults'
 
 interface AppState {
   tests: LineTest[]
   drafts: Record<string, Draft>
+  folders: Folder[]
 
-  createTest: (name: string, productName: string) => string
-  updateTest: (testId: string, patch: Partial<Pick<LineTest, 'name' | 'productName' | 'status'>>) => void
+  createTest: (name: string, productName: string, folderId?: string) => string
+  updateTest: (testId: string, patch: Partial<Pick<LineTest, 'name' | 'productName' | 'status' | 'folderId'>>) => void
   addRun: (testId: string) => number
   saveRun: (testId: string, runId: number, patch: Partial<Run>) => void
   saveDraft: (key: string, draft: Draft) => void
   clearDraft: (key: string) => void
+
+  createFolder: (name: string) => string
+  renameFolder: (folderId: string, name: string) => void
+  deleteFolder: (folderId: string) => void
+  moveTestToFolder: (testId: string, folderId: string | null) => void
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
   tests: loadTests(),
   drafts: loadDrafts(),
+  folders: loadFolders(),
 
-  createTest: (name, productName) => {
+  createTest: (name, productName, folderId) => {
     const id = nanoid()
     const test: LineTest = {
       id,
@@ -30,6 +37,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       runs: [],
       template: DEFAULT_TEMPLATE,
       createdAt: new Date().toISOString(),
+      folderId,
     }
     const tests = [test, ...get().tests]
     saveTests(tests)
@@ -67,7 +75,6 @@ export const useAppStore = create<AppState>((set, get) => ({
       memo: '',
       tags: [],
     }
-    // 이전 active run → done으로 전환
     const updatedRuns = test.runs.map(r =>
       r.status === 'active' ? { ...r, status: 'done' as const } : r
     )
@@ -99,5 +106,38 @@ export const useAppStore = create<AppState>((set, get) => ({
     delete drafts[key]
     saveDrafts(drafts)
     set({ drafts })
+  },
+
+  createFolder: (name) => {
+    const id = nanoid()
+    const folder: Folder = { id, name, createdAt: new Date().toISOString() }
+    const folders = [...get().folders, folder]
+    saveFolders(folders)
+    set({ folders })
+    return id
+  },
+
+  renameFolder: (folderId, name) => {
+    const folders = get().folders.map(f => f.id === folderId ? { ...f, name } : f)
+    saveFolders(folders)
+    set({ folders })
+  },
+
+  deleteFolder: (folderId) => {
+    const tests = get().tests.map(t =>
+      t.folderId === folderId ? { ...t, folderId: undefined } : t
+    )
+    const folders = get().folders.filter(f => f.id !== folderId)
+    saveTests(tests)
+    saveFolders(folders)
+    set({ tests, folders })
+  },
+
+  moveTestToFolder: (testId, folderId) => {
+    const tests = get().tests.map(t =>
+      t.id === testId ? { ...t, folderId: folderId ?? undefined } : t
+    )
+    saveTests(tests)
+    set({ tests })
   },
 }))

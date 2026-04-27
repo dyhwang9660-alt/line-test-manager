@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Line Test Manager — Wireframes</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Caveat+Brush&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f5f0e8; font-family: 'Caveat', cursive; }
+
+  /* Sketch style primitives */
+  .sketch-border {
+    border: 2px solid #1a1a1a;
+    border-radius: 3px;
+    position: relative;
+  }
+  .sketch-border::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border: 1px solid #1a1a1a;
+    border-radius: 2px;
+    opacity: 0.15;
+    pointer-events: none;
+  }
+
+  .phone-screen {
+    background: #fff;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Caveat', cursive;
+  }
+
+  /* Top bar */
+  .topbar {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 10px 14px 8px;
+    font-size: 17px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    letter-spacing: 0.3px;
+  }
+  .topbar .back { font-size: 20px; cursor: pointer; }
+  .topbar .title { flex: 1; }
+  .topbar .action { font-size: 14px; color: #aaa; }
+
+  /* Tab bar */
+  .tabbar {
+    display: flex;
+    border-top: 2px solid #1a1a1a;
+    flex-shrink: 0;
+    background: #fff;
+  }
+  .tabbar .tab {
+    flex: 1;
+    text-align: center;
+    padding: 8px 4px 6px;
+    font-size: 13px;
+    color: #888;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .tabbar .tab:last-child { border-right: none; }
+  .tabbar .tab.active { color: #1a1a1a; font-weight: 700; }
+  .tabbar .tab .icon { font-size: 18px; }
+
+  /* Scrollable content */
+  .screen-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* Section headers */
+  .section-header {
+    background: #f0ebe0;
+    border-bottom: 1px solid #d0c8b8;
+    padding: 5px 14px;
+    font-size: 13px;
+    color: #666;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* List rows */
+  .list-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid #ececec;
+    gap: 10px;
+    background: #fff;
+  }
+  .list-row:active { background: #f8f8f8; }
+  .list-row .row-main { flex: 1; }
+  .list-row .row-title { font-size: 17px; font-weight: 700; color: #1a1a1a; }
+  .list-row .row-sub { font-size: 13px; color: #888; margin-top: 1px; }
+  .list-row .row-right { font-size: 13px; color: #aaa; }
+  .list-row .chevron { color: #ccc; font-size: 18px; }
+
+  /* Run badge */
+  .run-badge {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 2px solid #1a1a1a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .run-badge.done { background: #1a1a1a; color: #fff; }
+  .run-badge.progress { background: #ffe066; color: #1a1a1a; }
+  .run-badge.pending { background: #fff; color: #1a1a1a; }
+
+  /* FAB */
+  .fab {
+    position: absolute;
+    bottom: 70px; right: 16px;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    box-shadow: 3px 3px 0 #888;
+    border: 2px solid #1a1a1a;
+    cursor: pointer;
+    z-index: 10;
+  }
+
+  /* Quick Input Form */
+  .form-section {
+    border-bottom: 2px dashed #d0c8b8;
+    margin: 0;
+  }
+  .form-section-title {
+    padding: 8px 14px 4px;
+    font-size: 15px; font-weight: 700; color: #555;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .form-section-title .add-btn {
+    font-size: 12px; color: #888; border: 1px dashed #bbb;
+    padding: 2px 8px; border-radius: 10px; cursor: pointer;
+  }
+  .form-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 8px;
+  }
+  .form-label {
+    font-size: 14px; color: #444; min-width: 90px; flex-shrink: 0;
+  }
+  .form-input {
+    flex: 1;
+    background: #fafafa;
+    border: 1.5px solid #ccc;
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 15px;
+    font-family: 'Caveat', cursive;
+    color: #1a1a1a;
+    display: flex; align-items: center;
+  }
+  .form-input.filled { border-color: #1a1a1a; background: #fff; }
+  .form-input.empty { color: #bbb; }
+  .form-input .unit { font-size: 12px; color: #999; margin-left: 4px; }
+
+  /* Highlight badge for changed items */
+  .changed-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #ff4444;
+    flex-shrink: 0;
+  }
+
+  /* Comparison table */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Caveat', cursive;
+  }
+  .compare-table th {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 6px 8px;
+    font-size: 13px;
+    text-align: center;
+    border: 1px solid #333;
+  }
+  .compare-table th.param-col {
+    background: #333;
+    text-align: left;
+    font-size: 12px;
+  }
+  .compare-table td {
+    padding: 6px 8px;
+    font-size: 14px;
+    border: 1px solid #e0e0e0;
+    text-align: center;
+    background: #fff;
+  }
+  .compare-table td.param-name {
+    text-align: left;
+    color: #555;
+    font-size: 13px;
+    background: #f8f8f8;
+  }
+  .compare-table tr.changed td {
+    background: #fff8cc;
+  }
+  .compare-table tr.changed td.param-name {
+    background: #fff3a0;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+
+  /* Trend chart mockup */
+  .chart-area {
+    background: #fff;
+    margin: 10px 10px 4px;
+    border: 1.5px solid #ccc;
+    border-radius: 4px;
+    height: 120px;
+    position: relative;
+    overflow: hidden;
+  }
+  .chart-label {
+    position: absolute;
+    font-size: 11px; color: #aaa;
+  }
+  .chart-x-label { bottom: 4px; }
+  .chart-y-label { left: 4px; top: 4px; }
+
+  /* Annotation arrow */
+  .annotation {
+    position: absolute;
+    font-size: 11px;
+    color: #e83030;
+    background: #fff8f8;
+    border: 1px solid #e83030;
+    border-radius: 3px;
+    padding: 1px 5px;
+  }
+
+  /* Photo row */
+  .photo-row {
+    display: flex;
+    gap: 8px;
+    padding: 10px 14px;
+    overflow-x: auto;
+    background: #fff;
+    border-bottom: 1px solid #ececec;
+  }
+  .photo-thumb {
+    width: 60px; height: 60px;
+    border: 1.5px dashed #bbb;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 20px;
+    color: #ccc;
+    background: #fafafa;
+    position: relative;
+  }
+  .photo-thumb.has-photo {
+    border-style: solid;
+    border-color: #888;
+    background: #e8e8e8;
+    color: #888;
+    font-size: 11px;
+  }
+  .photo-thumb.add-btn-photo {
+    border-color: #ccc;
+    color: #bbb;
+    font-size: 24px;
+  }
+
+  /* Progress bar */
+  .progress-strip {
+    display: flex;
+    gap: 3px;
+    padding: 8px 14px 6px;
+    align-items: center;
+  }
+  .progress-dot {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid #1a1a1a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    position: relative;
+  }
+  .progress-dot.done { background: #1a1a1a; color: #fff; }
+  .progress-dot.active { background: #ffe066; color: #1a1a1a; }
+  .progress-dot.todo { background: #fff; color: #aaa; border-color: #ccc; }
+  .progress-line { flex: 1; height: 2px; background: #ccc; }
+  .progress-line.done { background: #1a1a1a; }
+
+  /* Note / annotation callout */
+  .callout {
+    background: #fffde7;
+    border: 1.5px solid #ffe066;
+    border-radius: 4px;
+    padding: 6px 10px;
+    margin: 6px 14px;
+    font-size: 13px;
+    color: #555;
+    position: relative;
+  }
+  .callout::before {
+    content: '💡';
+    margin-right: 4px;
+  }
+
+  /* Chip tags */
+  .chip {
+    display: inline-block;
+    border: 1.5px solid #1a1a1a;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 12px;
+    margin: 2px 3px;
+    cursor: pointer;
+  }
+  .chip.selected { background: #1a1a1a; color: #fff; }
+  .chip.yellow { border-color: #e0a000; background: #ffe066; color: #1a1a1a; }
+
+  /* Sticky action bar */
+  .sticky-action {
+    padding: 8px 14px;
+    border-top: 2px solid #1a1a1a;
+    background: #fff;
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .btn-primary {
+    flex: 1;
+    background: #1a1a1a;
+    color: #fff;
+    border: 2px solid #1a1a1a;
+    border-radius: 4px;
+    padding: 9px;
+    font-size: 16px;
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+  }
+  .btn-secondary {
+    background: #fff;
+    color: #1a1a1a;
+    border: 2px solid #1a1a1a;
+    border-radius: 4px;
+    padding: 9px 16px;
+    font-size: 15px;
+    font-family: 'Caveat', cursive;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  /* Sketch annotation labels */
+  .wf-label {
+    position: absolute;
+    font-family: 'Caveat', cursive;
+    font-size: 13px;
+    color: #e83030;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .wf-arrow {
+    color: #e83030;
+    font-size: 18px;
+  }
+
+  /* Quick selector modal */
+  .modal-sheet {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: #fff;
+    border-top: 2px solid #1a1a1a;
+    border-radius: 12px 12px 0 0;
+    padding: 12px 14px 20px;
+    z-index: 20;
+  }
+  .modal-handle {
+    width: 36px; height: 4px;
+    background: #ccc;
+    border-radius: 2px;
+    margin: 0 auto 10px;
+  }
+
+  /* Sketch lines on canvas */
+  .sketch-annotation {
+    font-family: 'Caveat', cursive;
+    font-size: 14px;
+    color: #e83030;
+    position: absolute;
+    pointer-events: none;
+  }
+
+  /* Chart SVG line */
+  svg.chart-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+
+  /* Status strip */
+  .status-strip {
+    display: flex;
+    gap: 6px;
+    padding: 6px 14px;
+    overflow-x: auto;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<script type="text/babel">
+
+const { useState } = React;
+
+/* ─── SCREEN 1: Home + Run List ─── */
+function Screen1() {
+  const [selectedTest, setSelectedTest] = useState(null);
+  
+  const tests = [
+    { id: 1, name: 'PE-LLD #23-A', product: 'Film Grade 0.918', runs: 5, lastRun: '4/25', status: 'active' },
+    { id: 2, name: 'PP-H #07-C', product: 'Fiber Grade 2.5MI', runs: 3, lastRun: '4/20', status: 'done' },
+    { id: 3, name: 'LDPE #12-B', product: 'Coating Grade', runs: 2, lastRun: '4/18', status: 'done' },
+  ];
+  
+  const runs = [
+    { n: 1, label: 'Run 1', note: '기준 조건', changed: false, done: true, time: '09:10' },
+    { n: 2, label: 'Run 2', note: 'T1 온도 +5°C', changed: true, done: true, time: '10:45' },
+    { n: 3, label: 'Run 3', note: 'T1 온도 +10°C', changed: true, done: true, time: '13:20' },
+    { n: 4, label: 'Run 4', note: 'RPM -20', changed: true, done: false, time: '진행중', active: true },
+    { n: 5, label: 'Run 5', note: '미실행', changed: false, done: false, pending: true, time: '-' },
+  ];
+
+  if (selectedTest) {
+    return (
+      <div className="phone-screen" style={{position:'relative'}}>
+        <div className="topbar">
+          <span className="back" onClick={() => setSelectedTest(null)}>←</span>
+          <span className="title">{tests[selectedTest-1].name}</span>
+          <span className="action">편집</span>
+        </div>
+
+        {/* Run progress strip */}
+        <div style={{background:'#fff', borderBottom:'2px solid #eee', padding:'10px 14px 8px'}}>
+          <div style={{fontSize:13, color:'#888', marginBottom:6}}>진행 현황</div>
+          <div className="progress-strip">
+            {runs.map((r, i) => (
+              <React.Fragment key={r.n}>
+                {i > 0 && <div className={`progress-line ${runs[i-1].done ? 'done' : ''}`}></div>}
+                <div className={`progress-dot ${r.active ? 'active' : r.done ? 'done' : 'todo'}`}>{r.n}</div>
+              </React.Fragment>
+            ))}
+          </div>
+          <div style={{fontSize:12, color:'#888', marginTop:4}}>Run 4 진행중 · 오늘 09:10 시작</div>
+        </div>
+
+        {/* Callout */}
+        <div className="callout">Run 4는 RPM -20 변경 조건입니다. 이전 Run 대비 변경된 항목을 확인하세요.</div>
+
+        {/* Run list */}
+        <div className="screen-content">
+          {runs.map(r => (
+            <div key={r.n} className="list-row" style={{background: r.active ? '#fffbe6' : '#fff'}}>
+              <div className={`run-badge ${r.active ? 'progress' : r.done ? 'done' : 'pending'}`}>{r.n}</div>
+              <div className="row-main">
+                <div className="row-title" style={{display:'flex', alignItems:'center', gap:6}}>
+                  {r.label}
+                  {r.changed && <span style={{fontSize:11, background:'#ffe066', border:'1px solid #e0a000', borderRadius:8, padding:'1px 6px', color:'#7a5000'}}>조건변경</span>}
+                  {r.active && <span style={{fontSize:11, background:'#ff4444', color:'#fff', borderRadius:8, padding:'1px 6px'}}>진행중</span>}
+                </div>
+                <div className="row-sub">{r.note} · {r.time}</div>
+              </div>
+              <div className="chevron">›</div>
+            </div>
+          ))}
+
+          {/* Add run row */}
+          <div className="list-row" style={{justifyContent:'center', color:'#bbb', fontSize:15, border:'2px dashed #e0e0e0', margin:10, borderRadius:6, background:'#fafafa'}}>
+            + 차수 추가
+          </div>
+
+          {/* Action buttons */}
+          <div style={{padding:'0 14px 14px', display:'flex', gap:8, marginTop:4}}>
+            <div className="btn-secondary" style={{flex:1, fontSize:14}}>📊 비교 보기</div>
+            <div className="btn-secondary" style={{flex:1, fontSize:14}}>📈 트렌드</div>
+          </div>
+        </div>
+
+        {/* Sticky bottom action */}
+        <div className="sticky-action">
+          <div className="btn-primary">+ 새 차수(Run 5) 입력 시작</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="phone-screen" style={{position:'relative'}}>
+      <div className="topbar">
+        <span className="title">📋 Line Test</span>
+        <span className="action">+ 신규</span>
+      </div>
+
+      {/* Search bar */}
+      <div style={{padding:'8px 14px', background:'#fff', borderBottom:'1px solid #eee'}}>
+        <div style={{background:'#f2f2f2', borderRadius:8, padding:'7px 12px', fontSize:15, color:'#aaa', border:'1.5px solid #ddd'}}>
+          🔍 테스트 검색...
+        </div>
+      </div>
+
+      <div className="screen-content">
+        <div className="section-header">진행중</div>
+        {tests.filter(t => t.status === 'active').map(t => (
+          <div key={t.id} className="list-row" style={{background:'#fffbe6', cursor:'pointer'}} onClick={() => setSelectedTest(t.id)}>
+            <div className="row-main">
+              <div className="row-title">{t.name} <span style={{fontSize:12, color:'#e0a000'}}>● 진행중</span></div>
+              <div className="row-sub">{t.product} · Run {t.runs}차 · 최근 {t.lastRun}</div>
+            </div>
+            <div className="chevron">›</div>
+          </div>
+        ))}
+
+        <div className="section-header">완료됨</div>
+        {tests.filter(t => t.status === 'done').map(t => (
+          <div key={t.id} className="list-row" style={{cursor:'pointer'}} onClick={() => setSelectedTest(t.id)}>
+            <div className="row-main">
+              <div className="row-title">{t.name}</div>
+              <div className="row-sub">{t.product} · Run {t.runs}차 · {t.lastRun}</div>
+            </div>
+            <div className="chevron">›</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="fab">+</div>
+
+      <div className="tabbar">
+        <div className="tab active"><span className="icon">📋</span>테스트</div>
+        <div className="tab"><span className="icon">📈</span>트렌드</div>
+        <div className="tab"><span className="icon">⚙️</span>설정</div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── SCREEN 2: Quick Input Form ─── */
+function Screen2() {
+  const [activeSection, setActiveSection] = useState('condition');
+  const [showModal, setShowModal] = useState(false);
+  const [activeLeg, setActiveLeg] = useState(0);
+
+  const legs = ['Leg A', 'Leg B', 'Leg C'];
+
+  // target: set in advance (spec), tol: ± tolerance, actuals per leg
+  const conditions = [
+    { label: 'T1 온도', unit: '°C', target: '185', tol: '±2', actuals: ['185','185','186'], changed: false },
+    { label: 'T2 온도', unit: '°C', target: '195', tol: '±2', actuals: ['195','195','195'], changed: false },
+    { label: 'T3 온도', unit: '°C', target: '205', tol: '±3', actuals: ['205','207','205'], changed: true },
+    { label: 'T4 온도', unit: '°C', target: '210', tol: '±3', actuals: ['210','210','211'], changed: true },
+    { label: 'Die 온도', unit: '°C', target: '215', tol: '±2', actuals: ['215','215','215'], changed: false },
+    { label: 'RPM', unit: 'rpm', target: '70', tol: '±5', actuals: ['68','68','70'], changed: true },
+    { label: '압력', unit: 'bar', target: '120', tol: '±5', actuals: ['120','119','121'], changed: false },
+    { label: '투입량', unit: 'kg/hr', target: '25', tol: '±0.5', actuals: ['25.5','25.5','25.0'], changed: false },
+    { label: '진공도', unit: 'MPa', target: '-0.08', tol: '±0.01', actuals: ['-0.08','-0.08','-0.08'], changed: false },
+    { label: '냉각수 온도', unit: '°C', target: '22', tol: '±1', actuals: ['22','23','22'], changed: false },
+  ];
+  const properties = [
+    { label: 'MI (190/2.16)', unit: 'g/10min', target: '1.0', tol: '±0.1', actuals: ['1.02','0.98','1.01'] },
+    { label: '밀도', unit: 'g/cm³', target: '0.918', tol: '±0.001', actuals: ['0.9182','0.9181','0.9183'] },
+    { label: '외관', unit: '', target: '양호', tol: '', actuals: ['양호','버블','양호'] },
+    { label: '인장강도(MD)', unit: 'MPa', target: '25', tol: '≥', actuals: ['','',''] },
+    { label: '헤이즈', unit: '%', target: '8', tol: '≤', actuals: ['','',''] },
+  ];
+
+  // Check if actual deviates from target (simple string compare for non-range targets)
+  const isDeviated = (target, actual) => {
+    if (!actual) return false;
+    if (target.includes('~') || target.includes('±') || target.startsWith('≥') || target.startsWith('≤')) return false;
+    return actual !== target;
+  };
+
+  return (
+    <div className="phone-screen" style={{position:'relative'}}>
+      <div className="topbar">
+        <span className="back">←</span>
+        <div style={{flex:1}}>
+          <div style={{fontSize:16, fontWeight:700}}>PE-LLD #23-A · Run 4</div>
+          <div style={{fontSize:12, color:'#aaa', fontWeight:400}}>2026-04-26 13:20</div>
+        </div>
+        <span className="action">임시저장</span>
+      </div>
+
+      {/* Previous run comparison strip */}
+      <div style={{background:'#f5f0e8', borderBottom:'2px solid #ddd', padding:'6px 14px'}}>
+        <div style={{fontSize:12, color:'#888', marginBottom:4}}>이전 Run(3) 대비 변경 항목</div>
+        <div style={{display:'flex', gap:6, flexWrap:'wrap'}}>
+          <span className="chip yellow">T3 온도 +5°C</span>
+          <span className="chip yellow">T4 온도 +5°C</span>
+          <span className="chip yellow">RPM -20</span>
+        </div>
+      </div>
+
+      {/* Section tabs */}
+      <div style={{display:'flex', background:'#fff', borderBottom:'2px solid #1a1a1a', flexShrink:0}}>
+        {[['condition','⚙️ 공정조건'],['property','🧪 물성평가'],['photo','📷 사진/특이점']].map(([k,label]) => (
+          <div key={k} onClick={() => setActiveSection(k)}
+            style={{flex:1, textAlign:'center', padding:'8px 4px', fontSize:14, fontWeight:700,
+              borderBottom: activeSection===k ? '3px solid #1a1a1a' : '3px solid transparent',
+              color: activeSection===k ? '#1a1a1a' : '#aaa', cursor:'pointer', transition:'all .15s'}}>
+            {label}
+          </div>
+        ))}
+      </div>
+
+      {/* ── Leg selector (shown for condition & property tabs) ── */}
+      {(activeSection === 'condition' || activeSection === 'property') && (
+        <div style={{display:'flex', alignItems:'center', background:'#fff', borderBottom:'1px solid #e0e0e0', padding:'5px 10px', gap:6, flexShrink:0}}>
+          <span style={{fontSize:12, color:'#999', marginRight:2}}>Test Leg:</span>
+          {legs.map((lg, i) => (
+            <div key={i} onClick={() => setActiveLeg(i)}
+              style={{padding:'3px 12px', borderRadius:12, border:'1.5px solid', cursor:'pointer', fontSize:13, fontWeight:700,
+                borderColor: activeLeg===i ? '#1a1a1a' : '#ccc',
+                background: activeLeg===i ? '#1a1a1a' : '#fff',
+                color: activeLeg===i ? '#fff' : '#888'}}>
+              {lg}
+            </div>
+          ))}
+          <div style={{marginLeft:'auto', fontSize:12, color:'#bbb', border:'1px dashed #ccc', borderRadius:10, padding:'2px 8px', cursor:'pointer'}}>+ 추가</div>
+        </div>
+      )}
+
+      {/* Form content */}
+      <div className="screen-content">
+        {activeSection === 'condition' && (
+          <>
+            {/* Column header */}
+            <div style={{display:'flex', alignItems:'center', padding:'4px 10px 3px', background:'#f0ebe0', borderBottom:'1px solid #ddd', gap:4}}>
+              <div style={{width:6}}></div>
+              <div style={{fontSize:11, color:'#888', minWidth:72, flexShrink:0}}>항목</div>
+              <div style={{fontSize:11, color:'#6a6a6a', width:52, textAlign:'center', flexShrink:0}}>Target</div>
+              <div style={{fontSize:11, color:'#888', width:44, textAlign:'center', flexShrink:0}}>공차</div>
+              <div style={{fontSize:11, color:'#1a1a1a', fontWeight:700, flex:1, textAlign:'center'}}>실측값 ({legs[activeLeg]})</div>
+            </div>
+
+            <div className="form-section">
+              <div className="form-section-title">
+                공정 온도
+                <span className="add-btn">+ 항목 추가</span>
+              </div>
+              {conditions.slice(0,5).map((c, i) => {
+                const actual = c.actuals[activeLeg];
+                const deviated = isDeviated(c.target, actual);
+                return (
+                  <div key={i} className="form-row" style={{background: c.changed ? '#fff8e0' : '#fff', padding:'5px 10px', gap:4}}>
+                    {c.changed ? <div className="changed-dot" style={{flexShrink:0}}></div> : <div style={{width:7, flexShrink:0}}></div>}
+                    {/* Label */}
+                    <div className="form-label" style={{minWidth:72, fontSize:13}}>{c.label}</div>
+                    {/* Target box */}
+                    <div style={{width:52, flexShrink:0, background:'#f2f2f2', border:'1.5px solid #ddd', borderRadius:4,
+                      padding:'4px 4px', fontSize:13, color:'#888', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', lineHeight:1.1}}>
+                      <span>{c.target}</span>
+                      <span style={{fontSize:9, color:'#bbb'}}>{c.unit}</span>
+                    </div>
+                    {/* Tolerance box */}
+                    <div style={{width:44, flexShrink:0, background:'#fafafa', border:'1.5px dashed #ccc', borderRadius:4,
+                      padding:'4px 3px', fontSize:12, color:'#e0a000', textAlign:'center', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700}}>
+                      {c.tol || <span style={{color:'#ddd', fontSize:10}}>—</span>}
+                    </div>
+                    {/* Actual input */}
+                    <div style={{flex:1, background: deviated ? '#fff0f0' : '#fff', border:`1.5px solid ${deviated ? '#e83030' : c.changed ? '#e0a000' : '#ccc'}`,
+                      borderRadius:4, padding:'4px 7px', fontSize:15, fontFamily:'Caveat, cursive',
+                      display:'flex', alignItems:'center', gap:3}}>
+                      <span style={{flex:1, color: actual ? '#1a1a1a' : '#bbb'}}>{actual || '—'}</span>
+                      <span style={{fontSize:10, color:'#aaa'}}>{c.unit}</span>
+                      {deviated && <span style={{fontSize:10, color:'#e83030'}}>!</span>}
+                      {c.changed && !deviated && <span style={{fontSize:10, color:'#e0a000'}}>↑</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="form-section">
+              <div className="form-section-title">
+                운전 조건
+                <span className="add-btn">+ 항목 추가</span>
+              </div>
+              {conditions.slice(5).map((c, i) => {
+                const actual = c.actuals[activeLeg];
+                const deviated = isDeviated(c.target, actual);
+                return (
+                  <div key={i} className="form-row" style={{background: c.changed ? '#fff8e0' : '#fff', padding:'5px 10px', gap:4}}>
+                    {c.changed ? <div className="changed-dot" style={{flexShrink:0}}></div> : <div style={{width:7, flexShrink:0}}></div>}
+                    <div className="form-label" style={{minWidth:72, fontSize:13}}>{c.label}</div>
+                    <div style={{width:52, flexShrink:0, background:'#f2f2f2', border:'1.5px solid #ddd', borderRadius:4,
+                      padding:'4px 4px', fontSize:13, color:'#888', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', lineHeight:1.1}}>
+                      <span>{c.target}</span>
+                      <span style={{fontSize:9, color:'#bbb'}}>{c.unit}</span>
+                    </div>
+                    <div style={{width:44, flexShrink:0, background:'#fafafa', border:'1.5px dashed #ccc', borderRadius:4,
+                      padding:'4px 3px', fontSize:12, color:'#e0a000', textAlign:'center', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700}}>
+                      {c.tol || <span style={{color:'#ddd', fontSize:10}}>—</span>}
+                    </div>
+                    <div style={{flex:1, background: deviated ? '#fff0f0' : '#fff', border:`1.5px solid ${deviated ? '#e83030' : c.changed ? '#e0a000' : '#ccc'}`,
+                      borderRadius:4, padding:'4px 7px', fontSize:15, fontFamily:'Caveat, cursive',
+                      display:'flex', alignItems:'center', gap:3}}>
+                      <span style={{flex:1, color: actual ? '#1a1a1a' : '#bbb'}}>{actual || '—'}</span>
+                      <span style={{fontSize:10, color:'#aaa'}}>{c.unit}</span>
+                      {deviated && <span style={{fontSize:10, color:'#e83030'}}>!</span>}
+                      {c.changed && !deviated && <span style={{fontSize:10, color:'#e0a000'}}>↓</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{padding:'8px 14px'}}>
+              <div style={{border:'1.5px dashed #ccc', borderRadius:6, padding:'10px', textAlign:'center', color:'#bbb', fontSize:14, cursor:'pointer'}}
+                onClick={() => setShowModal(true)}>
+                + 새 공정조건 항목 추가
+              </div>
+            </div>
+
+            {/* Legend */}
+            <div style={{padding:'4px 14px 12px', display:'flex', gap:12, fontSize:11, color:'#888'}}>
+              <span>🟡 조건변경</span>
+              <span style={{color:'#e83030'}}>● Target 이탈</span>
+              <span style={{color:'#888'}}>■ Target 회색 = 읽기전용</span>
+            </div>
+          </>
+        )}
+
+        {activeSection === 'property' && (
+          <>
+            {/* Column header */}
+            <div style={{display:'flex', alignItems:'center', padding:'4px 10px 3px', background:'#f0ebe0', borderBottom:'1px solid #ddd', gap:4}}>
+              <div style={{width:6}}></div>
+              <div style={{fontSize:11, color:'#888', minWidth:72, flexShrink:0}}>항목</div>
+              <div style={{fontSize:11, color:'#6a6a6a', width:52, textAlign:'center', flexShrink:0}}>Target</div>
+              <div style={{fontSize:11, color:'#888', width:44, textAlign:'center', flexShrink:0}}>공차</div>
+              <div style={{fontSize:11, color:'#1a1a1a', fontWeight:700, flex:1, textAlign:'center'}}>실측값 ({legs[activeLeg]})</div>
+            </div>
+            <div className="form-section">
+              <div className="form-section-title">
+                분석값
+                <span className="add-btn">+ 항목 추가</span>
+              </div>
+              {properties.map((p, i) => {
+                const actual = p.actuals[activeLeg];
+                const bad = actual === '버블';
+                return (
+                  <div key={i} className="form-row" style={{padding:'5px 10px', gap:4}}>
+                    <div style={{width:7, flexShrink:0}}></div>
+                    <div className="form-label" style={{minWidth:72, fontSize:12}}>{p.label}</div>
+                    <div style={{width:52, flexShrink:0, background:'#f2f2f2', border:'1.5px solid #ddd', borderRadius:4,
+                      padding:'4px 4px', fontSize:12, color:'#888', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', lineHeight:1.1}}>
+                      <span>{p.target}</span>
+                      {p.unit && <span style={{fontSize:9, color:'#bbb'}}>{p.unit}</span>}
+                    </div>
+                    {/* Tolerance box */}
+                    <div style={{width:44, flexShrink:0, background:'#fafafa', border:'1.5px dashed #ccc', borderRadius:4,
+                      padding:'4px 3px', fontSize:12, color:'#e0a000', textAlign:'center', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700}}>
+                      {p.tol ? p.tol : <span style={{color:'#ddd', fontSize:10}}>—</span>}
+                    </div>
+                    <div style={{flex:1, background: bad ? '#fff0f0' : '#fff', border:`1.5px solid ${bad ? '#e83030' : actual ? '#1a1a1a' : '#ccc'}`,
+                      borderRadius:4, padding:'4px 7px', fontSize:15, fontFamily:'Caveat, cursive',
+                      display:'flex', alignItems:'center', gap:3, color: actual ? (bad ? '#c00':'#1a1a1a') : '#bbb'}}>
+                      <span style={{flex:1}}>{actual || '미입력'}</span>
+                      {p.unit && <span style={{fontSize:10, color:'#aaa'}}>{p.unit}</span>}
+                      {bad && <span style={{fontSize:10, color:'#e83030'}}>!</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{padding:'8px 14px'}}>
+              <div style={{border:'1.5px dashed #ccc', borderRadius:6, padding:'10px', textAlign:'center', color:'#bbb', fontSize:14}}>
+                + 물성 항목 추가
+              </div>
+            </div>
+          </>
+        )}
+
+        {activeSection === 'photo' && (
+          <>
+            <div style={{padding:'8px 14px 4px', borderBottom:'1px solid #eee', background:'#fff', fontSize:14, color:'#555', fontWeight:700}}>
+              특이점 사진
+            </div>
+            <div className="photo-row">
+              <div className="photo-thumb has-photo">외관<br/>이상</div>
+              <div className="photo-thumb has-photo">버블<br/>발생</div>
+              <div className="photo-thumb add-btn-photo" style={{cursor:'pointer'}}>📷</div>
+              <div className="photo-thumb add-btn-photo" style={{cursor:'pointer', fontSize:14, color:'#bbb'}}>갤<br/>러리</div>
+            </div>
+
+            <div style={{padding:'8px 14px 4px', borderBottom:'1px solid #eee', background:'#fff', fontSize:14, color:'#555', fontWeight:700, marginTop:8}}>
+              특이점 메모
+            </div>
+            <div style={{padding:'8px 14px'}}>
+              <div style={{border:'1.5px solid #ccc', borderRadius:6, padding:'10px', minHeight:80, fontSize:15, color:'#888', background:'#fafafa'}}>
+                외관 버블 발생, 압출기 2번 배럴 온도 이상 감지됨. 추가 확인 필요.
+              </div>
+            </div>
+
+            <div style={{padding:'0 14px'}}>
+              <div className="form-section-title">태그</div>
+              <div style={{padding:'4px 0 8px'}}>
+                {['외관불량','버블','압력이상','온도이상','이물질','기타'].map(tag => (
+                  <span key={tag} className={`chip ${tag === '외관불량' || tag === '버블' ? 'selected' : ''}`}>{tag}</span>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="sticky-action">
+        <div className="btn-secondary">← 이전 Run 복사</div>
+        <div className="btn-primary">저장 →</div>
+      </div>
+
+      {/* Add item modal */}
+      {showModal && (
+        <div style={{position:'absolute', inset:0, background:'rgba(0,0,0,0.3)', zIndex:19}} onClick={() => setShowModal(false)}>
+          <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+            <div className="modal-handle"></div>
+            <div style={{fontSize:16, fontWeight:700, marginBottom:10}}>새 공정조건 항목</div>
+            <div className="form-row" style={{padding:'6px 0', borderBottom:'none'}}>
+              <div className="form-label">항목명</div>
+              <div className="form-input filled" style={{color:'#1a1a1a'}}>냉각롤 속도</div>
+            </div>
+            <div className="form-row" style={{padding:'6px 0', borderBottom:'none'}}>
+              <div className="form-label">단위</div>
+              <div className="form-input filled" style={{color:'#1a1a1a'}}>m/min</div>
+            </div>
+            <div className="form-row" style={{padding:'6px 0 14px', borderBottom:'none'}}>
+              <div className="form-label">분류</div>
+              <div style={{display:'flex', gap:6}}>
+                {['온도','속도','압력','기타'].map(c => (
+                  <span key={c} className={`chip ${c==='속도'?'selected':''}`} style={{margin:0}}>{c}</span>
+                ))}
+              </div>
+            </div>
+            <div className="btn-primary">이 테스트에만 추가</div>
+            <div style={{textAlign:'center', marginTop:8, fontSize:13, color:'#aaa', cursor:'pointer'}}>템플릿에도 저장</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── SCREEN 3: Comparison + Trend ─── */
+function Screen3() {
+  const [view, setView] = useState('compare');
+  const [compareLeg, setCompareLeg] = useState(0);
+  const [compareMode, setCompareMode] = useState('run');
+  const [filterMode, setFilterMode] = useState(0);   // 0=전체, 1=변경만
+  const [trendItem, setTrendItem] = useState(0);
+  const legs = ['Leg A','Leg B','Leg C'];
+  const legColors = ['#1a1a1a','#888','#bbb'];
+  const legDash = ['none','6,3','2,3'];
+
+  // 전체 10개 공정조건, Screen2와 동일한 구조
+  const paramGroups = [
+    {
+      group: '공정 온도',
+      items: [
+        { name: 'T1 온도 (°C)', target:'185', tol:'±2', vals:[['185','185','185'],['185','185','185'],['185','185','185'],['185','185','185']], changed:false },
+        { name: 'T2 온도 (°C)', target:'195', tol:'±2', vals:[['195','195','195'],['195','195','195'],['195','195','195'],['195','195','195']], changed:false },
+        { name: 'T3 온도 (°C)', target:'205', tol:'±3', vals:[['195','195','196'],['200','200','201'],['205','207','205'],['205','205','206']], changed:true },
+        { name: 'T4 온도 (°C)', target:'210', tol:'±3', vals:[['200','200','200'],['200','200','201'],['205','205','205'],['205','210','205']], changed:true },
+        { name: 'Die 온도 (°C)', target:'215', tol:'±2', vals:[['215','215','215'],['215','215','215'],['215','215','215'],['215','215','215']], changed:false },
+      ]
+    },
+    {
+      group: '운전 조건',
+      items: [
+        { name: 'RPM',          target:'70',  tol:'±5',    vals:[['88','88','88'],['88','88','88'],['88','88','88'],['68','68','70']], changed:true },
+        { name: '압력 (bar)',    target:'120', tol:'±5',    vals:[['118','119','118'],['120','120','119'],['122','121','122'],['119','120','119']], changed:false },
+        { name: '투입량 (kg/hr)', target:'25', tol:'±0.5', vals:[['25.5','25.5','25.5'],['25.5','25.5','25.5'],['25.5','25.5','25.5'],['25.5','25.0','25.0']], changed:false },
+        { name: '진공도 (MPa)', target:'-0.08', tol:'±0.01', vals:[['-0.08','-0.08','-0.08'],['-0.08','-0.08','-0.08'],['-0.08','-0.08','-0.08'],['-0.08','-0.08','-0.08']], changed:false },
+        { name: '냉각수 온도 (°C)', target:'22', tol:'±1', vals:[['22','22','22'],['22','22','22'],['22','22','22'],['22','23','22']], changed:false },
+      ]
+    },
+  ];
+  // 전체 5개 물성, Screen2와 동일
+  const propGroups = [
+    {
+      group: '분석값',
+      items: [
+        { name: 'MI (g/10min)',   target:'1.0',   tol:'±0.1',   vals:[['0.98','0.97','0.99'],['1.01','1.00','1.02'],['1.05','1.04','1.05'],['1.02','0.98','1.01']], changed:false },
+        { name: '밀도 (g/cm³)',   target:'0.918', tol:'±0.001', vals:[['0.9181','0.9181','0.9180'],['0.9183','0.9182','0.9183'],['0.9184','0.9184','0.9183'],['0.9182','0.9181','0.9182']], changed:false },
+        { name: '외관',           target:'양호',  tol:'',        vals:[['양호','양호','양호'],['양호','양호','양호'],['양호','양호','양호'],['버블','양호','양호']], changed:true },
+        { name: '인장강도MD (MPa)', target:'≥25', tol:'',       vals:[['27.1','26.8','27.0'],['27.3','27.1','27.2'],['27.0','26.9','27.1'],['','','']], changed:false },
+        { name: '헤이즈 (%)',     target:'≤8',    tol:'',        vals:[['6.2','6.4','6.1'],['6.0','6.2','6.0'],['6.1','6.1','6.3'],['','','']], changed:false },
+      ]
+    },
+  ];
+  const runs = ['R1','R2','R3','R4'];
+
+  const [compareRun, setCompareRun] = useState(3);
+
+  const chartW = 260, chartH = 95;
+  const miByLeg = [[0.98,1.01,1.05,1.02],[0.97,1.00,1.04,0.98],[0.99,1.02,1.05,1.01]];
+  const rpmByLeg = [[88,88,88,68],[88,88,88,68],[88,88,88,70]];
+  function makeChartLines(dataByLeg, minV, maxV) {
+    return dataByLeg.map(legData => {
+      const pts = legData.map((v, i) => [
+        22 + i * (chartW - 44) / (legData.length - 1),
+        chartH - 14 - ((v - minV) / (maxV - minV)) * (chartH - 26)
+      ]);
+      return { pts, d: pts.map((p,i) => `${i===0?'M':'L'} ${p[0]} ${p[1]}`).join(' ') };
+    });
+  }
+  const miLines = makeChartLines(miByLeg, 0.93, 1.10);
+  const miGrids = [0.95,1.00,1.05,1.10];
+  const rpmLines = makeChartLines(rpmByLeg, 60, 100);
+  const rpmGrids = [60,70,80,90,100];
+
+  function ChartSVG({lines, grids, minV, maxV, xLabels, specLine}) {
+    return (
+      <svg className="chart-svg" viewBox={`0 0 ${chartW} ${chartH}`} preserveAspectRatio="none">
+        {grids.map(v => {
+          const y = chartH - 14 - ((v-minV)/(maxV-minV))*(chartH-26);
+          return <React.Fragment key={v}>
+            <line x1="20" y1={y} x2={chartW-4} y2={y} stroke="#eee" strokeWidth="1"/>
+            <text x="0" y={y+4} fontSize="8" fill="#bbb">{v}</text>
+          </React.Fragment>;
+        })}
+        {specLine && (() => {
+          const y = chartH - 14 - ((specLine-minV)/(maxV-minV))*(chartH-26);
+          return <line x1="20" y1={y} x2={chartW-4} y2={y} stroke="#ffe066" strokeWidth="1.5" strokeDasharray="4,3"/>;
+        })()}
+        {xLabels.map((r, i) => (
+          <text key={r} x={lines[0].pts[i][0]} y={chartH-2} fontSize="9" fill="#aaa" textAnchor="middle">{r}</text>
+        ))}
+        {lines.map((line, li) => (
+          <React.Fragment key={li}>
+            <path d={line.d} fill="none" stroke={legColors[li]} strokeWidth={li===0?2.5:2} strokeDasharray={legDash[li]} strokeLinejoin="round"/>
+            {line.pts.map((p, i) => (
+              <circle key={i} cx={p[0]} cy={p[1]} r="3.5" fill={legColors[li]} stroke="#fff" strokeWidth="1.5" opacity={li===0?1:0.85}/>
+            ))}
+          </React.Fragment>
+        ))}
+      </svg>
+    );
+  }
+
+  function getVal(item, colIdx) {
+    if (compareMode === 'run') return item.vals[colIdx][compareLeg];
+    else return item.vals[compareRun][colIdx];
+  }
+  function isChanged(item, colIdx) {
+    if (!item.changed) return false;
+    if (colIdx === 0) return false;
+    return getVal(item, colIdx) !== getVal(item, colIdx - 1);
+  }
+
+  const colHeaders = compareMode === 'run' ? runs : legs;
+
+  return (
+    <div className="phone-screen">
+      <div className="topbar">
+        <span className="back">←</span>
+        <span className="title">PE-LLD #23-A · 비교</span>
+        <span className="action">내보내기</span>
+      </div>
+
+      {/* View toggle */}
+      <div style={{display:'flex', background:'#fff', borderBottom:'2px solid #1a1a1a', flexShrink:0}}>
+        {[['compare','📊 차수 비교'],['trend','📈 트렌드']].map(([k,label]) => (
+          <div key={k} onClick={() => setView(k)}
+            style={{flex:1, textAlign:'center', padding:'9px 4px', fontSize:15, fontWeight:700,
+              borderBottom: view===k ? '3px solid #1a1a1a' : '3px solid transparent',
+              color: view===k ? '#1a1a1a' : '#aaa', cursor:'pointer'}}>
+            {label}
+          </div>
+        ))}
+      </div>
+
+      {/* ── COMPARE VIEW ── */}
+      {view === 'compare' && (
+        <div className="screen-content">
+
+          {/* Compare mode toggle */}
+          <div style={{background:'#f0ebe0', borderBottom:'1px solid #ddd', padding:'7px 12px', display:'flex', alignItems:'center', gap:8}}>
+            <span style={{fontSize:12, color:'#888'}}>비교 축:</span>
+            {[['run','Run별 비교'],['leg','Leg별 비교']].map(([m,label]) => (
+              <div key={m} onClick={() => setCompareMode(m)}
+                style={{padding:'3px 12px', borderRadius:12, border:'1.5px solid', cursor:'pointer', fontSize:13, fontWeight:700,
+                  borderColor: compareMode===m ? '#1a1a1a' : '#ccc',
+                  background: compareMode===m ? '#1a1a1a' : '#fff',
+                  color: compareMode===m ? '#fff' : '#888'}}>
+                {label}
+              </div>
+            ))}
+          </div>
+
+          {/* Context selector */}
+          {compareMode === 'run' && (
+            <div style={{background:'#fff', borderBottom:'1px solid #eee', padding:'5px 12px', display:'flex', alignItems:'center', gap:6}}>
+              <span style={{fontSize:12, color:'#888'}}>Leg 고정:</span>
+              {legs.map((lg, i) => (
+                <div key={i} onClick={() => setCompareLeg(i)}
+                  style={{padding:'2px 10px', borderRadius:10, border:'1.5px solid', cursor:'pointer', fontSize:12, fontWeight:700,
+                    borderColor: compareLeg===i ? '#1a1a1a' : '#ccc',
+                    background: compareLeg===i ? '#1a1a1a' : '#fff',
+                    color: compareLeg===i ? '#fff' : '#888'}}>
+                  {lg}
+                </div>
+              ))}
+              <span style={{marginLeft:'auto', fontSize:11, color:'#aaa'}}>각 Run의 {legs[compareLeg]} 값 표시</span>
+            </div>
+          )}
+          {compareMode === 'leg' && (
+            <div style={{background:'#fff', borderBottom:'1px solid #eee', padding:'5px 12px', display:'flex', alignItems:'center', gap:6}}>
+              <span style={{fontSize:12, color:'#888'}}>Run 고정:</span>
+              {runs.map((r, i) => (
+                <div key={i} onClick={() => setCompareRun(i)}
+                  style={{padding:'2px 10px', borderRadius:10, border:'1.5px solid', cursor:'pointer', fontSize:12, fontWeight:700,
+                    borderColor: compareRun===i ? '#1a1a1a' : '#ccc',
+                    background: compareRun===i ? '#1a1a1a' : '#fff',
+                    color: compareRun===i ? '#fff' : '#888'}}>
+                  {r}
+                </div>
+              ))}
+              <span style={{marginLeft:'auto', fontSize:11, color:'#aaa'}}>Run {compareRun+1} 내 Leg 비교</span>
+            </div>
+          )}
+
+          {/* Filter */}
+          <div style={{padding:'5px 12px 5px', display:'flex', gap:6, alignItems:'center', background:'#fafafa', borderBottom:'1px solid #eee'}}>
+            <span style={{fontSize:12, color:'#888'}}>표시:</span>
+            {['전체 항목','변경 항목만'].map((c,i) => (
+              <span key={c} onClick={() => setFilterMode(i)}
+                className={`chip ${filterMode===i?'selected':''}`} style={{fontSize:12, padding:'1px 8px', margin:0, cursor:'pointer'}}>{c}</span>
+            ))}
+            <span style={{marginLeft:'auto', fontSize:11, color:'#ffe066', background:'#7a5000', borderRadius:4, padding:'1px 5px'}}>🟡 변경</span>
+          </div>
+
+          {/* Comparison table */}
+          <div style={{overflowX:'auto', padding:'8px 8px 0'}}>
+            <table className="compare-table" style={{minWidth:240, width:'100%'}}>
+              <thead>
+                <tr>
+                  <th className="param-col" style={{fontSize:11}}>항목 / Target (공차)</th>
+                  {colHeaders.map(h => <th key={h} style={{fontSize:12}}>{h}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {/* 공정조건 그룹 */}
+                <tr><td colSpan={colHeaders.length+1} style={{background:'#e8e0d0', fontSize:11, color:'#666', textAlign:'left', padding:'3px 8px', fontWeight:700}}>⚙️ 공정조건</td></tr>
+                {paramGroups.map(pg => (
+                  <React.Fragment key={pg.group}>
+                    <tr><td colSpan={colHeaders.length+1} style={{background:'#f0ebe0', fontSize:10, color:'#999', textAlign:'left', padding:'2px 12px', fontStyle:'italic'}}>{pg.group}</td></tr>
+                    {(filterMode===1 ? pg.items.filter(p=>p.changed) : pg.items).map((p, i) => (
+                      <tr key={i} className={p.changed ? 'changed' : ''}>
+                        <td className="param-name" style={{fontSize:11, padding:'4px 6px'}}>
+                          <div style={{display:'flex', alignItems:'center', gap:3}}>
+                            {p.changed && <span style={{color:'#e0a000'}}>●</span>}
+                            <div>
+                              <div>{p.name}</div>
+                              <div style={{fontSize:10, color:'#aaa', fontWeight:400}}>목표: {p.target} {p.tol && <span style={{color:'#c07000'}}>{p.tol}</span>}</div>
+                            </div>
+                          </div>
+                        </td>
+                        {colHeaders.map((_, j) => {
+                          const v = getVal(p, j);
+                          const chg = isChanged(p, j);
+                          return (
+                            <td key={j} style={{fontSize:12, padding:'4px 4px', textAlign:'center',
+                              fontWeight: chg ? 700 : 400,
+                              color: chg ? '#c05000' : 'inherit',
+                              background: chg ? '#fff3cc' : 'inherit'}}>
+                              {v || <span style={{color:'#ddd'}}>—</span>}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                ))}
+                {/* 물성평가 그룹 */}
+                <tr><td colSpan={colHeaders.length+1} style={{background:'#e8e0d0', fontSize:11, color:'#666', textAlign:'left', padding:'3px 8px', fontWeight:700}}>🧪 물성평가</td></tr>
+                {propGroups.map(pg => (
+                  <React.Fragment key={pg.group}>
+                    <tr><td colSpan={colHeaders.length+1} style={{background:'#f0ebe0', fontSize:10, color:'#999', textAlign:'left', padding:'2px 12px', fontStyle:'italic'}}>{pg.group}</td></tr>
+                    {(filterMode===1 ? pg.items.filter(p=>p.changed) : pg.items).map((p, i) => {
+                      return (
+                        <tr key={i} className={p.changed ? 'changed' : ''}>
+                          <td className="param-name" style={{fontSize:11, padding:'4px 6px'}}>
+                            <div style={{display:'flex', alignItems:'center', gap:3}}>
+                              {p.changed && <span style={{color:'#e0a000'}}>●</span>}
+                              <div>
+                                <div>{p.name}</div>
+                                <div style={{fontSize:10, color:'#aaa', fontWeight:400}}>목표: {p.target} {p.tol && <span style={{color:'#c07000'}}>{p.tol}</span>}</div>
+                              </div>
+                            </div>
+                          </td>
+                          {colHeaders.map((_, j) => {
+                            const v = getVal(p, j);
+                            const chg = isChanged(p, j);
+                            const bad = v === '버블';
+                            return (
+                              <td key={j} style={{fontSize:12, padding:'4px 4px', textAlign:'center',
+                                fontWeight: (chg || bad) ? 700 : 400,
+                                color: bad ? '#c00' : chg ? '#c05000' : 'inherit',
+                                background: bad ? '#fff0f0' : chg ? '#fff3cc' : 'inherit'}}>
+                                {v || <span style={{color:'#ddd'}}>—</span>}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div style={{height:16}}></div>
+        </div>
+      )}
+
+      {/* ── TREND VIEW ── */}
+      {view === 'trend' && (
+        <div className="screen-content">
+          {/* Item selector */}
+          <div style={{padding:'7px 12px 6px', display:'flex', gap:5, flexWrap:'wrap', background:'#f8f8f8', borderBottom:'1px solid #eee', alignItems:'center'}}>
+            <span style={{fontSize:12, color:'#888'}}>항목:</span>
+            {['MI','밀도','RPM','T3온도'].map((c,i) => (
+              <span key={c} onClick={() => setTrendItem(i)}
+                className={`chip ${trendItem===i?'selected':''}`} style={{fontSize:12, padding:'1px 8px', margin:0, cursor:'pointer'}}>{c}</span>
+            ))}
+          </div>
+
+          {/* Leg legend */}
+          <div style={{padding:'5px 12px', display:'flex', gap:14, alignItems:'center', background:'#fff', borderBottom:'1px solid #eee', flexShrink:0}}>
+            <span style={{fontSize:11, color:'#888'}}>범례:</span>
+            {legs.map((lg, i) => (
+              <div key={i} style={{display:'flex', alignItems:'center', gap:4, fontSize:12}}>
+                <svg width="22" height="10" viewBox="0 0 22 10">
+                  <line x1="0" y1="5" x2="22" y2="5" stroke={legColors[i]} strokeWidth="2.5" strokeDasharray={legDash[i]}/>
+                  <circle cx="11" cy="5" r="3" fill={legColors[i]}/>
+                </svg>
+                <span style={{color: legColors[i], fontWeight: i===0?700:400}}>{lg}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* MI Chart — all 3 legs */}
+          <div style={{padding:'10px 10px 4px'}}>
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:4}}>
+              <div style={{fontSize:14, fontWeight:700, color:'#333'}}>MI (g/10min) · Run 1–4</div>
+              <div style={{fontSize:11, color:'#aaa'}}>목표: 1.0±0.1</div>
+            </div>
+            <div className="chart-area" style={{height:110}}>
+              <ChartSVG lines={miLines} grids={miGrids} minV={0.93} maxV={1.10}
+                xLabels={runs} specLine={1.0}/>
+              {/* Target band annotation */}
+              <div style={{position:'absolute', right:6, top:8, fontSize:9, color:'#c07000', background:'#fffde7', padding:'1px 4px', borderRadius:2, border:'1px solid #ffe066'}}>
+                — 목표 1.0
+              </div>
+              {/* Anomaly callout */}
+              <div style={{position:'absolute', bottom:18, right:6, fontSize:9, color:'#e83030', background:'#fff8f8', padding:'1px 4px', borderRadius:2, border:'1px solid #fcc'}}>
+                R4-A ↓이탈
+              </div>
+            </div>
+          </div>
+
+          {/* RPM Chart */}
+          <div style={{padding:'4px 10px 4px'}}>
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:4}}>
+              <div style={{fontSize:14, fontWeight:700, color:'#333'}}>RPM · Run 1–4</div>
+              <div style={{fontSize:11, color:'#aaa'}}>목표: 70</div>
+            </div>
+            <div className="chart-area" style={{height:100}}>
+              <ChartSVG lines={rpmLines} grids={rpmGrids} minV={60} maxV={100}
+                xLabels={runs} specLine={70}/>
+              {/* Step change highlight */}
+              <div style={{position:'absolute', bottom:16, left:'60%', fontSize:9, color:'#c07000', background:'#fffde7', padding:'1px 4px', borderRadius:2}}>
+                R4 -20 변경
+              </div>
+            </div>
+          </div>
+
+          {/* Summary */}
+          <div style={{margin:'6px 10px', background:'#f0f8ff', border:'1.5px solid #90c8ff', borderRadius:4, padding:'8px 10px', fontSize:13, color:'#336'}}>
+            <b>📌 Leg 비교 요약 (Run 4):</b> Leg A MI 이탈(0.98), 외관 버블 발생. Leg B·C는 정상 범위. RPM -20 조건은 전 Leg 동일 적용.
+          </div>
+
+          <div style={{height:16}}></div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── MAIN CANVAS ─── */
+function App() {
+  return (
+    <DesignCanvas title="Line Test Manager — Wireframes">
+      <DCSection id="s1" title="📱 핵심 화면 3종">
+        <DCArtboard id="a1" label="① 홈 · 차수 목록" width={375} height={780}>
+          <IOSDevice>
+            <Screen1 />
+          </IOSDevice>
+        </DCArtboard>
+
+        <DCArtboard id="a2" label="② 차수 빠른 입력 폼" width={375} height={780}>
+          <IOSDevice>
+            <Screen2 />
+          </IOSDevice>
+        </DCArtboard>
+
+        <DCArtboard id="a3" label="③ 비교 · 트렌드" width={375} height={780}>
+          <IOSDevice>
+            <Screen3 />
+          </IOSDevice>
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+
+<div id="root"></div>
+</body>
+</html>

@@ -42,6 +42,12 @@ export interface Template {
   propertyItems: ConditionItem[]
 }
 
+export interface Folder {
+  id: string
+  name: string
+  createdAt: string
+}
+
 export interface LineTest {
   id: string
   name: string
@@ -50,6 +56,7 @@ export interface LineTest {
   runs: Run[]
   template: Template
   createdAt: string
+  folderId?: string
 }
 
 export type Draft = Partial<Pick<Run, 'conditions' | 'properties' | 'photos' | 'memo' | 'tags' | 'legs'>>

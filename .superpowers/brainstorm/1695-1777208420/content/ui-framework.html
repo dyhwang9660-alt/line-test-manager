@@ -1,0 +1,76 @@
+<h2>UI 스타일링 방식은?</h2>
+<p class="subtitle">현장 입력 중심 앱 — 어떤 스타일로 만들까요?</p>
+
+<div class="options">
+  <div class="option" data-choice="tailwind-shadcn" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Tailwind CSS + shadcn/ui</h3>
+      <p>요즘 가장 많이 쓰는 조합. 깔끔한 기본 컴포넌트, 커스터마이징 쉬움. 모바일 친화적.</p>
+      <div class="mockup" style="margin-top:8px">
+        <div class="mockup-body" style="font-family:sans-serif;font-size:12px;padding:8px">
+          <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:8px;margin-bottom:6px">
+            <div style="font-size:10px;color:#6b7280;margin-bottom:2px">T1 온도</div>
+            <div style="display:flex;gap:4px;align-items:center">
+              <span style="background:#f3f4f6;padding:2px 6px;border-radius:4px;color:#9ca3af">185</span>
+              <span style="color:#f59e0b;font-size:10px">±2</span>
+              <input style="flex:1;border:1px solid #111;border-radius:4px;padding:2px 6px;font-size:11px" value="186" />
+            </div>
+          </div>
+          <div style="background:#fff8e0;border:1px solid #fbbf24;border-radius:6px;padding:8px">
+            <div style="font-size:10px;color:#6b7280;margin-bottom:2px">RPM ● 변경됨</div>
+            <div style="display:flex;gap:4px;align-items:center">
+              <span style="background:#f3f4f6;padding:2px 6px;border-radius:4px;color:#9ca3af">120</span>
+              <span style="color:#f59e0b;font-size:10px">±5</span>
+              <input style="flex:1;border:2px solid #ef4444;border-radius:4px;padding:2px 6px;font-size:11px;color:#ef4444" value="98" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="mui" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Material UI (MUI)</h3>
+      <p>Google Material Design. 완성도 높은 컴포넌트 세트. 모바일 앱 느낌 강함. 번들 크기 큼.</p>
+      <div class="mockup" style="margin-top:8px">
+        <div class="mockup-body" style="font-family:Roboto,sans-serif;font-size:12px;padding:8px;background:#fafafa">
+          <div style="border-bottom:2px solid #1976d2;padding:4px 0;margin-bottom:8px;font-weight:500;color:#1976d2;font-size:11px">⚙️ 공정조건 &nbsp; 🧪 물성평가 &nbsp; 📷 사진</div>
+          <div style="margin-bottom:6px">
+            <div style="font-size:10px;color:#666;margin-bottom:1px">T1 온도</div>
+            <div style="display:flex;gap:4px">
+              <div style="border-bottom:1px solid #ccc;padding:2px 4px;min-width:36px;color:#999">185</div>
+              <div style="border-bottom:1px solid #f59e0b;padding:2px 4px;min-width:28px;color:#f59e0b">±2</div>
+              <div style="border-bottom:2px solid #1976d2;padding:2px 4px;flex:1">186</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="custom" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Tailwind CSS (커스텀)</h3>
+      <p>컴포넌트 라이브러리 없이 Tailwind만 사용. 완전 자유도. 와이어프레임 스타일 그대로 재현 가능.</p>
+      <div class="mockup" style="margin-top:8px">
+        <div class="mockup-body" style="font-family:monospace;font-size:11px;padding:8px;background:#fff">
+          <div style="display:flex;gap:2px;margin-bottom:6px">
+            <div style="background:#111;color:#fff;padding:3px 8px;border-radius:4px;font-size:10px">⚙️ 공정조건</div>
+            <div style="background:#f3f4f6;color:#666;padding:3px 8px;border-radius:4px;font-size:10px">🧪 물성평가</div>
+            <div style="background:#f3f4f6;color:#666;padding:3px 8px;border-radius:4px;font-size:10px">📷 사진</div>
+          </div>
+          <div style="display:grid;grid-template-columns:80px 48px 40px 1fr;gap:3px;align-items:center;font-size:10px">
+            <span style="color:#555">T1 온도</span>
+            <span style="background:#f3f4f6;padding:1px 4px;border-radius:3px;text-align:center;color:#999">185</span>
+            <span style="color:#f59e0b;text-align:center">±2</span>
+            <input style="border:1.5px solid #111;border-radius:3px;padding:1px 4px" value="186" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

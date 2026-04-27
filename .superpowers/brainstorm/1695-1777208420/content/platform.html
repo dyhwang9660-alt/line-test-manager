@@ -1,0 +1,40 @@
+<h2>어떤 플랫폼으로 구현할까요?</h2>
+<p class="subtitle">현장에서 스마트폰으로 사용하는 앱 — 실행 환경을 선택해주세요</p>
+
+<div class="options">
+  <div class="option" data-choice="pwa" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>React PWA (웹앱)</h3>
+      <p>브라우저에서 실행, 홈 화면 추가 가능. 설치 불필요, 배포 간단. 오프라인 지원(로컬스토리지). 개발 속도 가장 빠름.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>장점</h4><ul><li>즉시 개발 시작 가능</li><li>와이어프레임(HTML)과 동일 스택</li><li>PC/태블릿에서도 동작</li></ul></div>
+        <div class="cons"><h4>단점</h4><ul><li>카메라 접근 제한적(모바일 브라우저)</li><li>네이티브 앱보다 UX 차이</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="rn" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>React Native (네이티브 앱)</h3>
+      <p>iOS/Android 네이티브 앱. 카메라·갤러리 완전 지원, 네이티브 UX. Expo로 빠른 개발 가능.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>장점</h4><ul><li>카메라/갤러리 완전 지원</li><li>오프라인 완전 지원</li><li>앱스토어 배포 가능</li></ul></div>
+        <div class="cons"><h4>단점</h4><ul><li>개발 환경 세팅 필요</li><li>빌드/배포 절차 복잡</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="web-only" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>React 모바일웹 (반응형)</h3>
+      <p>PWA 기능 없이 순수 반응형 웹. 현장에서 모바일 브라우저로 접속. 서버 없이 로컬 파일로도 실행 가능.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>장점</h4><ul><li>가장 단순한 구조</li><li>별도 설치 없음</li><li>빠른 프로토타이핑</li></ul></div>
+        <div class="cons"><h4>단점</h4><ul><li>오프라인 지원 없음</li><li>데이터 영속성 주의</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

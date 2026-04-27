@@ -1,7 +1,8 @@
-import type { LineTest, Draft } from '@/types'
+import type { LineTest, Draft, Folder } from '@/types'
 
 const TESTS_KEY = 'line_test_manager_tests'
 const DRAFTS_KEY = 'line_test_manager_drafts'
+const FOLDERS_KEY = 'line_test_manager_folders'
 
 export function loadTests(): LineTest[] {
   try {
@@ -34,5 +35,22 @@ export function saveDrafts(drafts: Record<string, Draft>): void {
     localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts))
   } catch (e) {
     console.error('[storage] saveDrafts failed:', e)
+  }
+}
+
+export function loadFolders(): Folder[] {
+  try {
+    const raw = localStorage.getItem(FOLDERS_KEY)
+    return raw ? (JSON.parse(raw) as Folder[]) : []
+  } catch {
+    return []
+  }
+}
+
+export function saveFolders(folders: Folder[]): void {
+  try {
+    localStorage.setItem(FOLDERS_KEY, JSON.stringify(folders))
+  } catch (e) {
+    console.error('[storage] saveFolders failed:', e)
   }
 }
