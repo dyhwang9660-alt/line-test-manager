@@ -273,24 +273,6 @@ export default function Home() {
         )}
       </div>
 
-      {/* FAB */}
-      {fabOpen && (
-        <div className="fixed bottom-24 right-6 flex flex-col gap-2 items-end z-20">
-          <button
-            onClick={() => { setShowFolderInput(true); setFabOpen(false) }}
-            className="flex items-center gap-2 bg-white border border-gray-200 shadow-md rounded-full px-4 py-2.5 text-sm font-medium text-gray-700"
-          >
-            <span>📁</span> 새 폴더
-          </button>
-          <button
-            onClick={() => handleNewTest()}
-            className="flex items-center gap-2 bg-white border border-gray-200 shadow-md rounded-full px-4 py-2.5 text-sm font-medium text-gray-700"
-          >
-            <span>📋</span> 새 테스트
-          </button>
-        </div>
-      )}
-
       {/* FAB 배경 클릭 닫기 */}
       {fabOpen && (
         <div
@@ -299,14 +281,33 @@ export default function Home() {
         />
       )}
 
-      <button
-        onClick={() => setFabOpen(o => !o)}
-        className={`fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg text-2xl flex items-center justify-center z-20 transition-transform ${
-          fabOpen ? 'bg-gray-700 rotate-45' : 'bg-gray-900'
-        } text-white`}
-      >
-        +
-      </button>
+      {/* FAB 컨테이너 — max-w-md 안에 고정 */}
+      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto pointer-events-none z-20">
+        {fabOpen && (
+          <div className="absolute bottom-24 right-4 flex flex-col gap-2 items-end pointer-events-auto">
+            <button
+              onClick={() => { setShowFolderInput(true); setFabOpen(false) }}
+              className="flex items-center gap-2 bg-white border border-gray-200 shadow-md rounded-full px-4 py-2.5 text-sm font-medium text-gray-700"
+            >
+              <span>📁</span> 새 폴더
+            </button>
+            <button
+              onClick={() => handleNewTest()}
+              className="flex items-center gap-2 bg-white border border-gray-200 shadow-md rounded-full px-4 py-2.5 text-sm font-medium text-gray-700"
+            >
+              <span>📋</span> 새 테스트
+            </button>
+          </div>
+        )}
+        <button
+          onClick={() => setFabOpen(o => !o)}
+          className={`absolute bottom-6 right-4 w-14 h-14 rounded-full shadow-lg text-2xl flex items-center justify-center pointer-events-auto transition-transform ${
+            fabOpen ? 'bg-gray-700 rotate-45' : 'bg-gray-900'
+          } text-white`}
+        >
+          +
+        </button>
+      </div>
 
       <NewTestModal
         open={modalOpen}
