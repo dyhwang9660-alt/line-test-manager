@@ -10,8 +10,8 @@ interface AppState {
   folders: Folder[]
   recipes: Recipe[]
 
-  createTest: (name: string, productName: string, folderId?: string) => string
-  updateTest: (testId: string, patch: Partial<Pick<LineTest, 'name' | 'productName' | 'status' | 'folderId'>>) => void
+  createTest: (name: string, productName: string, folderId?: string, memo?: string) => string
+  updateTest: (testId: string, patch: Partial<Pick<LineTest, 'name' | 'productName' | 'status' | 'folderId' | 'memo'>>) => void
   deleteTest: (testId: string) => void
   addRun: (testId: string) => number
   saveRun: (testId: string, runId: number, patch: Partial<Run>) => void
@@ -35,7 +35,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   folders: loadFolders(),
   recipes: loadRecipes(),
 
-  createTest: (name, productName, folderId) => {
+  createTest: (name, productName, folderId, memo) => {
     const id = nanoid()
     const test: LineTest = {
       id,
@@ -46,6 +46,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       template: DEFAULT_TEMPLATE,
       createdAt: new Date().toISOString(),
       folderId,
+      memo,
     }
     const tests = [test, ...get().tests]
     saveTests(tests)

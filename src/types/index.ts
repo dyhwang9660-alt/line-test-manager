@@ -57,6 +57,7 @@ export interface LineTest {
   template: Template
   createdAt: string
   folderId?: string
+  memo?: string
 }
 
 export type Draft = Partial<Pick<Run, 'conditions' | 'properties' | 'photos' | 'memo' | 'tags' | 'legs'>>
