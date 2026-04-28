@@ -67,6 +67,7 @@ function EditSheet({ testId, onClose }: EditSheetProps) {
   const [productName, setProductName] = useState(test.productName)
   const [folderId, setFolderId] = useState(test.folderId ?? '')
   const [status, setStatus] = useState<'active' | 'done'>(test.status)
+  const [memo, setMemo] = useState(test.memo ?? '')
 
   function handleSave() {
     updateTest(testId, {
@@ -74,6 +75,7 @@ function EditSheet({ testId, onClose }: EditSheetProps) {
       productName: productName.trim(),
       folderId: folderId || undefined,
       status,
+      memo: memo.trim() || undefined,
     })
     onClose()
   }
@@ -165,6 +167,18 @@ function EditSheet({ testId, onClose }: EditSheetProps) {
             </div>
           </div>
 
+          {/* 메모 */}
+          <div className="mb-5">
+            <label className="text-xs text-gray-500 mb-2 block">메모</label>
+            <textarea
+              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-gray-500 bg-gray-50 resize-none"
+              rows={3}
+              placeholder="테스트 목적, 특이사항 등..."
+              value={memo}
+              onChange={e => setMemo(e.target.value)}
+            />
+          </div>
+
           {/* 저장 버튼 */}
           <button
             onClick={handleSave}
@@ -233,6 +247,14 @@ export default function TestDetail() {
       <div className="bg-white border-b border-gray-100">
         <RunProgressStrip runs={test.runs} />
       </div>
+
+      {/* 테스트 메모 */}
+      {test.memo && (
+        <div className="bg-amber-50 border-b border-amber-100 px-4 py-2.5 flex gap-2 items-start">
+          <span className="text-amber-400 text-sm flex-shrink-0 mt-0.5">📝</span>
+          <p className="text-sm text-amber-800 leading-relaxed whitespace-pre-wrap">{test.memo}</p>
+        </div>
+      )}
 
       {/* 비교/트렌드 버튼 */}
       {test.runs.length > 0 && (
