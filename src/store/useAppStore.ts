@@ -1,13 +1,14 @@
 import { create } from 'zustand'
 import { nanoid } from 'nanoid'
-import type { LineTest, Run, Draft, Folder } from '@/types'
-import { loadTests, saveTests, loadDrafts, saveDrafts, loadFolders, saveFolders } from '@/lib/storage'
+import type { LineTest, Run, Draft, Folder, Recipe, RecipeValue } from '@/types'
+import { loadTests, saveTests, loadDrafts, saveDrafts, loadFolders, saveFolders, loadRecipes, saveRecipes } from '@/lib/storage'
 import { DEFAULT_TEMPLATE, makeEmptyConditions } from '@/lib/defaults'
 
 interface AppState {
   tests: LineTest[]
   drafts: Record<string, Draft>
   folders: Folder[]
+  recipes: Recipe[]
 
   createTest: (name: string, productName: string, folderId?: string) => string
   updateTest: (testId: string, patch: Partial<Pick<LineTest, 'name' | 'productName' | 'status' | 'folderId'>>) => void
@@ -21,12 +22,18 @@ interface AppState {
   renameFolder: (folderId: string, name: string) => void
   deleteFolder: (folderId: string) => void
   moveTestToFolder: (testId: string, folderId: string | null) => void
+
+  createRecipe: (name: string, productName: string) => string
+  updateRecipe: (recipeId: string, patch: Partial<Pick<Recipe, 'name' | 'productName' | 'conditions' | 'properties'>>) => void
+  deleteRecipe: (recipeId: string) => void
+  setRecipeValue: (recipeId: string, kind: 'conditions' | 'properties', itemId: string, val: Partial<RecipeValue>) => void
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
   tests: loadTests(),
   drafts: loadDrafts(),
   folders: loadFolders(),
+  recipes: loadRecipes(),
 
   createTest: (name, productName, folderId) => {
     const id = nanoid()
@@ -149,5 +156,43 @@ export const useAppStore = create<AppState>((set, get) => ({
     )
     saveTests(tests)
     set({ tests })
+  },
+
+  createRecipe: (name, productName) => {
+    const id = nanoid()
+    const recipe: Recipe = {
+      id,
+      name,
+      productName,
+      conditions: {},
+      properties: {},
+      createdAt: new Date().toISOString(),
+    }
+    const recipes = [recipe, ...get().recipes]
+    saveRecipes(recipes)
+    set({ recipes })
+    return id
+  },
+
+  updateRecipe: (recipeId, patch) => {
+    const recipes = get().recipes.map(r => r.id === recipeId ? { ...r, ...patch } : r)
+    saveRecipes(recipes)
+    set({ recipes })
+  },
+
+  deleteRecipe: (recipeId) => {
+    const recipes = get().recipes.filter(r => r.id !== recipeId)
+    saveRecipes(recipes)
+    set({ recipes })
+  },
+
+  setRecipeValue: (recipeId, kind, itemId, val) => {
+    const recipes = get().recipes.map(r => {
+      if (r.id !== recipeId) return r
+      const current = r[kind][itemId] ?? { target: '', tolerance: '±0' }
+      return { ...r, [kind]: { ...r[kind], [itemId]: { ...current, ...val } } }
+    })
+    saveRecipes(recipes)
+    set({ recipes })
   },
 }))

@@ -4,6 +4,7 @@ import { useAppStore } from '@/store/useAppStore'
 import NewTestModal from '@/components/NewTestModal'
 import type { LineTest, Folder } from '@/types'
 
+
 // ─── 테스트 행 (폴더 하위) ──────────────────────────────────────
 function TestRow({ test }: { test: LineTest }) {
   const navigate = useNavigate()
@@ -171,6 +172,7 @@ function FolderAccordion({
 
 // ─── 홈 메인 ─────────────────────────────────────────────────────
 export default function Home() {
+  const navigate = useNavigate()
   const tests = useAppStore(s => s.tests)
   const folders = useAppStore(s => s.folders)
   const createFolder = useAppStore(s => s.createFolder)
@@ -208,8 +210,14 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {/* 헤더 */}
-      <div className="bg-[#111111] text-white px-4 py-3">
+      <div className="bg-[#111111] text-white px-4 py-3 flex items-center justify-between">
         <span className="font-bold text-base">Line Test</span>
+        <button
+          onClick={() => navigate('/recipes')}
+          className="text-gray-300 text-xs px-2 py-1 rounded-lg hover:bg-white/10 transition-colors flex items-center gap-1"
+        >
+          <span>📋</span> 레시피
+        </button>
       </div>
 
       {/* 검색 */}

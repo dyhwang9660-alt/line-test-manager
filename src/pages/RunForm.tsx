@@ -5,10 +5,57 @@ import FormRow from '@/components/FormRow'
 import LegTabs from '@/components/LegTabs'
 import ChangedChips from '@/components/ChangedChips'
 import { buildChangedChips } from '@/lib/utils'
+import type { Recipe } from '@/types'
 
 const PHOTO_TAGS = ['외관불량', '버블', '압력이상', '온도이상', '이물질', '기타']
 const MAIN_TABS = ['공정조건', '물성평가', '사진·특이점'] as const
 type MainTab = typeof MAIN_TABS[number]
+
+// ─── 레시피 선택 바텀시트 ─────────────────────────────────────────
+function RecipePickerSheet({
+  recipes,
+  onSelect,
+  onClose,
+}: {
+  recipes: Recipe[]
+  onSelect: (recipe: Recipe) => void
+  onClose: () => void
+}) {
+  return (
+    <>
+      <div className="fixed inset-0 bg-black/40 z-30" onClick={onClose} />
+      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-40 bg-white rounded-t-2xl shadow-2xl max-h-[70vh] flex flex-col">
+        <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
+          <div className="w-10 h-1 bg-gray-300 rounded-full" />
+        </div>
+        <div className="px-5 pb-2 flex-shrink-0">
+          <h2 className="text-base font-bold text-gray-900">레시피 불러오기</h2>
+          <p className="text-xs text-gray-400 mt-0.5">불러오면 Target과 공차가 채워집니다 (실측값 유지)</p>
+        </div>
+        <div className="overflow-y-auto flex-1 pb-6">
+          {recipes.length === 0 ? (
+            <div className="text-center text-gray-400 text-sm py-10">
+              저장된 레시피가 없습니다
+            </div>
+          ) : (
+            recipes.map(recipe => (
+              <button
+                key={recipe.id}
+                onClick={() => onSelect(recipe)}
+                className="w-full text-left px-5 py-3.5 border-b border-gray-100 hover:bg-gray-50 last:border-0"
+              >
+                <div className="text-sm font-semibold text-gray-900">{recipe.name}</div>
+                {recipe.productName && (
+                  <div className="text-xs text-gray-400 mt-0.5">{recipe.productName}</div>
+                )}
+              </button>
+            ))
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
 
 export default function RunForm() {
   const { testId, runId } = useParams<{ testId: string; runId: string }>()
@@ -18,6 +65,7 @@ export default function RunForm() {
   const saveDraft = useAppStore(s => s.saveDraft)
   const clearDraft = useAppStore(s => s.clearDraft)
   const drafts = useAppStore(s => s.drafts)
+  const recipes = useAppStore(s => s.recipes)
 
   const test = tests.find(t => t.id === testId)
   const run = test?.runs.find(r => r.id === Number(runId))
@@ -31,6 +79,7 @@ export default function RunForm() {
   const [legs, setLegs] = useState<string[]>(run?.legs ?? ['A'])
   const [conditions, setConditions] = useState(draft?.conditions ?? run?.conditions ?? {})
   const [properties, setProperties] = useState(draft?.properties ?? run?.properties ?? {})
+  const [recipePickerOpen, setRecipePickerOpen] = useState(false)
   const [memo, setMemo] = useState(draft?.memo ?? run?.memo ?? '')
   const [tags, setTags] = useState<string[]>(draft?.tags ?? run?.tags ?? [])
 
@@ -99,6 +148,33 @@ export default function RunForm() {
     setProperties(JSON.parse(JSON.stringify(prevRun.properties)))
   }
 
+  function applyRecipe(recipe: Recipe) {
+    // Target·공차만 덮어쓰고 actuals(실측값)은 보존
+    setConditions(prev => {
+      const updated = { ...prev }
+      for (const [itemId, rv] of Object.entries(recipe.conditions)) {
+        updated[itemId] = {
+          target: rv.target,
+          tolerance: rv.tolerance,
+          actuals: updated[itemId]?.actuals ?? Object.fromEntries(legs.map(l => [l, ''])),
+        }
+      }
+      return updated
+    })
+    setProperties(prev => {
+      const updated = { ...prev }
+      for (const [itemId, rv] of Object.entries(recipe.properties)) {
+        updated[itemId] = {
+          target: rv.target,
+          tolerance: rv.tolerance,
+          actuals: updated[itemId]?.actuals ?? Object.fromEntries(legs.map(l => [l, ''])),
+        }
+      }
+      return updated
+    })
+    setRecipePickerOpen(false)
+  }
+
   function handleSave() {
     if (!testId || !run) return
     const chips = prevRun
@@ -160,6 +236,12 @@ export default function RunForm() {
           <div className="text-xs text-gray-400 truncate">{test.name}</div>
           <div className="font-bold text-sm">{run.label}</div>
         </div>
+        <button
+          onClick={() => setRecipePickerOpen(true)}
+          className="text-xs text-blue-300 border border-blue-400 px-2 py-1 rounded flex-shrink-0"
+        >
+          📋 레시피
+        </button>
         <button
           onClick={() => saveDraft(draftKey, { conditions, properties, memo, tags, legs })}
           className="text-xs text-yellow-400 border border-yellow-400 px-2 py-1 rounded flex-shrink-0"
@@ -331,7 +413,7 @@ export default function RunForm() {
       </div>
 
       {/* 하단 버튼 */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto flex gap-2 px-4 py-3 bg-white border-t border-gray-200">
+      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto flex gap-2 px-4 py-3 bg-white border-t border-gray-200 z-10">
         <button
           onClick={handleCopyPrev}
           disabled={!prevRun}
@@ -346,6 +428,15 @@ export default function RunForm() {
           저장 →
         </button>
       </div>
+
+      {/* 레시피 선택 바텀시트 */}
+      {recipePickerOpen && (
+        <RecipePickerSheet
+          recipes={recipes}
+          onSelect={applyRecipe}
+          onClose={() => setRecipePickerOpen(false)}
+        />
+      )}
     </div>
   )
 }

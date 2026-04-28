@@ -1,8 +1,9 @@
-import type { LineTest, Draft, Folder } from '@/types'
+import type { LineTest, Draft, Folder, Recipe } from '@/types'
 
 const TESTS_KEY = 'line_test_manager_tests'
 const DRAFTS_KEY = 'line_test_manager_drafts'
 const FOLDERS_KEY = 'line_test_manager_folders'
+const RECIPES_KEY = 'line_test_manager_recipes'
 
 export function loadTests(): LineTest[] {
   try {
@@ -52,5 +53,22 @@ export function saveFolders(folders: Folder[]): void {
     localStorage.setItem(FOLDERS_KEY, JSON.stringify(folders))
   } catch (e) {
     console.error('[storage] saveFolders failed:', e)
+  }
+}
+
+export function loadRecipes(): Recipe[] {
+  try {
+    const raw = localStorage.getItem(RECIPES_KEY)
+    return raw ? (JSON.parse(raw) as Recipe[]) : []
+  } catch {
+    return []
+  }
+}
+
+export function saveRecipes(recipes: Recipe[]): void {
+  try {
+    localStorage.setItem(RECIPES_KEY, JSON.stringify(recipes))
+  } catch (e) {
+    console.error('[storage] saveRecipes failed:', e)
   }
 }

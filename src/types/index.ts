@@ -60,3 +60,17 @@ export interface LineTest {
 }
 
 export type Draft = Partial<Pick<Run, 'conditions' | 'properties' | 'photos' | 'memo' | 'tags' | 'legs'>>
+
+export interface RecipeValue {
+  target: number | string
+  tolerance: string
+}
+
+export interface Recipe {
+  id: string
+  name: string
+  productName: string
+  conditions: Record<string, RecipeValue>
+  properties: Record<string, RecipeValue>
+  createdAt: string
+}
