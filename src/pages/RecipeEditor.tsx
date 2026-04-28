@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAppStore } from '@/store/useAppStore'
 import { DEFAULT_CONDITION_ITEMS, DEFAULT_PROPERTY_ITEMS } from '@/lib/defaults'
+import ProductSelect from '@/components/ProductSelect'
 import type { RecipeValue } from '@/types'
 
 const TABS = ['공정조건', '물성평가'] as const
@@ -23,21 +24,16 @@ interface RecipeRowProps {
 function RecipeRow({ label, unit, value, onChange }: RecipeRowProps) {
   return (
     <div className="flex items-center gap-1.5 px-3 py-2.5 border-b border-gray-100 bg-white last:border-0">
-      {/* 항목명 */}
       <div className="w-24 min-w-0">
         <div className="text-xs font-medium text-gray-800 truncate">{label}</div>
         {unit && <div className="text-[10px] text-gray-400">{unit}</div>}
       </div>
-
-      {/* Target */}
       <input
         className="w-20 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center outline-none focus:border-gray-500 bg-gray-50"
         placeholder="Target"
         value={String(value.target ?? '')}
         onChange={e => onChange({ target: e.target.value })}
       />
-
-      {/* 공차 */}
       <input
         className="w-20 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center outline-none focus:border-gray-500 bg-gray-50"
         placeholder="±0"
@@ -60,8 +56,8 @@ export default function RecipeEditor() {
 
   const [activeTab, setActiveTab] = useState<Tab>('공정조건')
   const [editingMeta, setEditingMeta] = useState(false)
-  const [metaName, setMetaName] = useState(recipe?.name ?? '')
   const [metaProduct, setMetaProduct] = useState(recipe?.productName ?? '')
+  const [metaName, setMetaName] = useState(recipe?.name ?? '')
 
   if (!recipe) {
     return (
@@ -72,8 +68,11 @@ export default function RecipeEditor() {
   }
 
   function handleMetaSave() {
-    if (!metaName.trim()) return
-    updateRecipe(recipe!.id, { name: metaName.trim(), productName: metaProduct.trim() })
+    if (!metaProduct.trim()) return
+    updateRecipe(recipe!.id, {
+      productName: metaProduct.trim(),
+      name: metaName.trim() || metaProduct.trim(),
+    })
     setEditingMeta(false)
   }
 
@@ -81,44 +80,84 @@ export default function RecipeEditor() {
     return recipe![kind][itemId] ?? { target: '', tolerance: '±0' }
   }
 
-  const conditionItems = DEFAULT_CONDITION_ITEMS
-  const propertyItems = DEFAULT_PROPERTY_ITEMS
-
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {/* 헤더 */}
       <div className="bg-[#111111] text-white px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate('/recipes')} className="text-gray-300 text-lg">←</button>
-        <div className="flex-1 min-w-0">
-          {editingMeta ? (
-            <div className="flex flex-col gap-1">
-              <input
-                autoFocus
-                className="bg-white/10 rounded px-2 py-0.5 text-sm font-bold outline-none w-full"
-                value={metaName}
-                onChange={e => setMetaName(e.target.value)}
-                onBlur={handleMetaSave}
-                onKeyDown={e => { if (e.key === 'Enter') handleMetaSave(); if (e.key === 'Escape') setEditingMeta(false) }}
-              />
-              <input
-                className="bg-white/10 rounded px-2 py-0.5 text-xs outline-none w-full"
+        <button onClick={() => navigate('/recipes')} className="text-gray-300 text-lg flex-shrink-0">←</button>
+
+        {editingMeta ? (
+          /* 편집 모드 */
+          <div className="flex-1 flex flex-col gap-1.5 min-w-0">
+            {/* 제품명 먼저 */}
+            <div>
+              <div className="text-[10px] text-gray-400 mb-0.5">제품명</div>
+              <ProductSelect
                 value={metaProduct}
-                onChange={e => setMetaProduct(e.target.value)}
-                onBlur={handleMetaSave}
-                placeholder="제품명"
+                onChange={setMetaProduct}
+                placeholder="제품 선택"
+                className="!py-1.5 !text-xs"
               />
             </div>
-          ) : (
-            <button onClick={() => { setMetaName(recipe.name); setMetaProduct(recipe.productName); setEditingMeta(true) }} className="text-left w-full">
-              <div className="font-bold text-sm truncate">{recipe.name}</div>
-              {recipe.productName && <div className="text-xs text-gray-400 truncate">{recipe.productName}</div>}
+            <div>
+              <div className="text-[10px] text-gray-400 mb-0.5">레시피명</div>
+              <input
+                className="w-full bg-white/10 rounded px-2 py-1 text-xs outline-none"
+                value={metaName}
+                onChange={e => setMetaName(e.target.value)}
+                placeholder={metaProduct || '레시피명'}
+                onKeyDown={e => { if (e.key === 'Enter') handleMetaSave(); if (e.key === 'Escape') setEditingMeta(false) }}
+              />
+            </div>
+          </div>
+        ) : (
+          /* 보기 모드 — 제품명 상단 */
+          <button
+            onClick={() => {
+              setMetaProduct(recipe.productName)
+              setMetaName(recipe.name)
+              setEditingMeta(true)
+            }}
+            className="flex-1 text-left min-w-0"
+          >
+            {recipe.productName && (
+              <div className="text-[11px] text-blue-300 font-semibold truncate">{recipe.productName}</div>
+            )}
+            <div className="font-bold text-sm truncate">{recipe.name}</div>
+          </button>
+        )}
+
+        {editingMeta ? (
+          <div className="flex gap-1 flex-shrink-0">
+            <button
+              onClick={handleMetaSave}
+              disabled={!metaProduct.trim()}
+              className="text-xs bg-white text-gray-900 px-2 py-1 rounded-lg font-medium disabled:opacity-40"
+            >
+              저장
             </button>
-          )}
-        </div>
-        <span className="text-gray-400 text-xs flex-shrink-0">탭하여 편집</span>
+            <button
+              onClick={() => setEditingMeta(false)}
+              className="text-xs text-gray-400 px-2 py-1 rounded-lg"
+            >
+              취소
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => {
+              setMetaProduct(recipe.productName)
+              setMetaName(recipe.name)
+              setEditingMeta(true)
+            }}
+            className="text-gray-400 text-xs flex-shrink-0 px-2 py-1 rounded-lg hover:bg-white/10"
+          >
+            ✏️
+          </button>
+        )}
       </div>
 
-      {/* 컬럼 헤더 설명 */}
+      {/* 컬럼 헤더 */}
       <div className="bg-white border-b border-gray-200 px-3 py-1.5 flex items-center gap-1.5 text-[10px] text-gray-400 uppercase tracking-wide">
         <div className="w-24">항목</div>
         <div className="w-20 text-center">Target</div>
@@ -152,7 +191,7 @@ export default function RecipeEditor() {
                 <div className="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 border-b border-gray-100">
                   {groupName}
                 </div>
-                {conditionItems.filter(i => ids.includes(i.id)).map(item => (
+                {DEFAULT_CONDITION_ITEMS.filter(i => ids.includes(i.id)).map(item => (
                   <RecipeRow
                     key={item.id}
                     label={item.label}
@@ -171,7 +210,7 @@ export default function RecipeEditor() {
             <div className="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-500 border-b border-gray-100">
               분석값
             </div>
-            {propertyItems.map(item => (
+            {DEFAULT_PROPERTY_ITEMS.map(item => (
               <RecipeRow
                 key={item.id}
                 label={item.label}

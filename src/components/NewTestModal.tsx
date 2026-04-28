@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAppStore } from '@/store/useAppStore'
 import { useNavigate } from 'react-router-dom'
+import ProductSelect from '@/components/ProductSelect'
 
 interface Props {
   open: boolean
@@ -47,10 +48,10 @@ export default function NewTestModal({ open, onClose, defaultFolderId }: Props) 
           </div>
           <div>
             <label className="text-sm text-gray-500 mb-1 block">제품명</label>
-            <Input
-              placeholder="Film Grade 0.918"
+            <ProductSelect
               value={productName}
-              onChange={e => setProductName(e.target.value)}
+              onChange={setProductName}
+              placeholder="제품 선택"
             />
           </div>
           <div>

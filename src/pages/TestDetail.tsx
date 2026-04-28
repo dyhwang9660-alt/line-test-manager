@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAppStore } from '@/store/useAppStore'
 import RunProgressStrip from '@/components/RunProgressStrip'
+import ProductSelect from '@/components/ProductSelect'
 import type { Run } from '@/types'
 
 // ─── Run 행 ───────────────────────────────────────────────────────
@@ -115,11 +116,10 @@ function EditSheet({ testId, onClose }: EditSheetProps) {
           {/* 제품명 */}
           <div className="mb-3">
             <label className="text-xs text-gray-500 mb-1 block">제품명</label>
-            <input
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-gray-500 bg-gray-50"
+            <ProductSelect
               value={productName}
-              onChange={e => setProductName(e.target.value)}
-              placeholder="제품명을 입력하세요"
+              onChange={setProductName}
+              placeholder="제품 선택"
             />
           </div>
 
