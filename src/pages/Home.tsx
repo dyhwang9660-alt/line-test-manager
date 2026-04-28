@@ -4,6 +4,62 @@ import { useAppStore } from '@/store/useAppStore'
 import NewTestModal from '@/components/NewTestModal'
 import type { LineTest, Folder } from '@/types'
 
+// ─── 새 폴더 중앙 팝업 ───────────────────────────────────────────
+function NewFolderModal({
+  onConfirm,
+  onClose,
+}: {
+  onConfirm: (name: string) => void
+  onClose: () => void
+}) {
+  const [name, setName] = useState('')
+
+  function handleSubmit() {
+    if (name.trim()) {
+      onConfirm(name.trim())
+    }
+  }
+
+  return (
+    <>
+      {/* 딤 배경 */}
+      <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} />
+      {/* 중앙 카드 */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+          <h2 className="text-base font-bold text-gray-900 mb-1">새 제품 폴더</h2>
+          <p className="text-xs text-gray-400 mb-4">폴더명은 제품명으로 입력하세요</p>
+          <input
+            autoFocus
+            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-gray-600 bg-gray-50 mb-4"
+            placeholder="예: PE-LLD"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') handleSubmit()
+              if (e.key === 'Escape') onClose()
+            }}
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={onClose}
+              className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-500"
+            >
+              취소
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={!name.trim()}
+              className="flex-1 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium disabled:opacity-40"
+            >
+              생성
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
 
 // ─── 테스트 행 (폴더 하위) ──────────────────────────────────────
 function TestRow({ test }: { test: LineTest }) {
@@ -17,8 +73,10 @@ function TestRow({ test }: { test: LineTest }) {
   return (
     <button
       onClick={() => navigate(`/tests/${test.id}`)}
-      className={`w-full text-left flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 last:border-0 transition-colors ${
-        test.status === 'active' ? 'bg-[#fff8e0]' : 'bg-white hover:bg-gray-50'
+      className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl border shadow-sm transition-colors mb-2 last:mb-0 ${
+        test.status === 'active'
+          ? 'bg-[#fff8e0] border-yellow-200'
+          : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-md'
       }`}
     >
       {/* 상태 dot */}
@@ -147,11 +205,11 @@ function FolderAccordion({
         </div>
       </div>
 
-      {/* 하위 테스트 목록 (아코디언) */}
+      {/* 하위 테스트 목록 */}
       {open && (
-        <div className="divide-y divide-gray-100">
+        <div className="px-3 py-2.5 bg-gray-50">
           {filtered.length === 0 ? (
-            <div className="px-4 py-3 text-xs text-gray-400 bg-white">
+            <div className="px-1 py-2 text-xs text-gray-400">
               {search ? '검색 결과 없음' : (
                 <button
                   onClick={() => onNewTest(folder.id)}
@@ -180,8 +238,7 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalFolderId, setModalFolderId] = useState<string | undefined>()
   const [search, setSearch] = useState('')
-  const [showFolderInput, setShowFolderInput] = useState(false)
-  const [newFolderName, setNewFolderName] = useState('')
+  const [folderModalOpen, setFolderModalOpen] = useState(false)
   const [fabOpen, setFabOpen] = useState(false)
 
   function handleNewTest(folderId?: string) {
@@ -190,12 +247,9 @@ export default function Home() {
     setFabOpen(false)
   }
 
-  function handleCreateFolder() {
-    if (newFolderName.trim()) {
-      createFolder(newFolderName.trim())
-      setNewFolderName('')
-    }
-    setShowFolderInput(false)
+  function handleCreateFolder(name: string) {
+    createFolder(name)
+    setFolderModalOpen(false)
     setFabOpen(false)
   }
 
@@ -230,35 +284,6 @@ export default function Home() {
         />
       </div>
 
-      {/* 새 폴더 입력창 */}
-      {showFolderInput && (
-        <div className="px-4 py-2 bg-white border-b border-gray-100 flex gap-2">
-          <input
-            autoFocus
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500"
-            placeholder="제품명 입력... (예: PE-LLD)"
-            value={newFolderName}
-            onChange={e => setNewFolderName(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter') handleCreateFolder()
-              if (e.key === 'Escape') setShowFolderInput(false)
-            }}
-          />
-          <button
-            onClick={handleCreateFolder}
-            className="px-3 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium"
-          >
-            생성
-          </button>
-          <button
-            onClick={() => setShowFolderInput(false)}
-            className="px-3 py-2 text-gray-400 text-sm"
-          >
-            취소
-          </button>
-        </div>
-      )}
-
       {/* 목록 */}
       <div className="flex-1 px-4 py-3 pb-28">
 
@@ -281,7 +306,7 @@ export default function Home() {
                 미분류
               </div>
             )}
-            <div className="rounded-xl overflow-hidden border border-gray-200">
+            <div className="space-y-2">
               {filteredUngrouped.map(t => <TestRow key={t.id} test={t} />)}
             </div>
           </div>
@@ -306,7 +331,7 @@ export default function Home() {
         {fabOpen && (
           <div className="absolute bottom-24 right-4 flex flex-col gap-2 items-end pointer-events-auto">
             <button
-              onClick={() => { setShowFolderInput(true); setFabOpen(false) }}
+              onClick={() => { setFolderModalOpen(true); setFabOpen(false) }}
               className="flex items-center gap-2 bg-white border border-gray-200 shadow-lg rounded-full px-4 py-2.5 text-sm font-medium text-gray-700"
             >
               <span>📁</span> 새 제품 폴더
@@ -329,11 +354,20 @@ export default function Home() {
         </button>
       </div>
 
+      {/* 새 테스트 모달 */}
       <NewTestModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         defaultFolderId={modalFolderId}
       />
+
+      {/* 새 폴더 중앙 팝업 */}
+      {folderModalOpen && (
+        <NewFolderModal
+          onConfirm={handleCreateFolder}
+          onClose={() => setFolderModalOpen(false)}
+        />
+      )}
     </div>
   )
 }
