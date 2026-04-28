@@ -73,11 +73,7 @@ function TestRow({ test }: { test: LineTest }) {
   return (
     <button
       onClick={() => navigate(`/tests/${test.id}`)}
-      className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl border shadow-sm transition-colors mb-2 last:mb-0 ${
-        test.status === 'active'
-          ? 'bg-[#fff8e0] border-yellow-200'
-          : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-md'
-      }`}
+      className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-100 shadow-sm bg-white hover:border-gray-200 hover:shadow-md transition-colors mb-2 last:mb-0"
     >
       {/* 상태 dot */}
       <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
