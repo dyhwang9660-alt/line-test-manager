@@ -11,6 +11,7 @@ interface AppState {
 
   createTest: (name: string, productName: string, folderId?: string) => string
   updateTest: (testId: string, patch: Partial<Pick<LineTest, 'name' | 'productName' | 'status' | 'folderId'>>) => void
+  deleteTest: (testId: string) => void
   addRun: (testId: string) => number
   saveRun: (testId: string, runId: number, patch: Partial<Run>) => void
   saveDraft: (key: string, draft: Draft) => void
@@ -49,6 +50,15 @@ export const useAppStore = create<AppState>((set, get) => ({
     const tests = get().tests.map(t => t.id === testId ? { ...t, ...patch } : t)
     saveTests(tests)
     set({ tests })
+  },
+
+  deleteTest: (testId) => {
+    const tests = get().tests.filter(t => t.id !== testId)
+    const drafts = { ...get().drafts }
+    Object.keys(drafts).forEach(k => { if (k.startsWith(testId)) delete drafts[k] })
+    saveTests(tests)
+    saveDrafts(drafts)
+    set({ tests, drafts })
   },
 
   addRun: (testId) => {
