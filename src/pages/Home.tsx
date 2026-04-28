@@ -4,43 +4,56 @@ import { useAppStore } from '@/store/useAppStore'
 import NewTestModal from '@/components/NewTestModal'
 import type { LineTest, Folder } from '@/types'
 
-// ─── 테스트 카드 ────────────────────────────────────────────────
-function TestItem({ test }: { test: LineTest }) {
+// ─── 테스트 행 (폴더 하위) ──────────────────────────────────────
+function TestRow({ test }: { test: LineTest }) {
   const navigate = useNavigate()
   const lastRun = test.runs[test.runs.length - 1]
   const lastDate = lastRun
     ? new Date(lastRun.startTime).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })
     : new Date(test.createdAt).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })
+  const activeRun = test.runs.find(r => r.status === 'active')
 
   return (
     <button
       onClick={() => navigate(`/tests/${test.id}`)}
-      className={`w-full text-left rounded-xl px-4 py-3 mb-2 flex items-center justify-between border ${
-        test.status === 'active'
-          ? 'bg-[#fff8e0] border-[#fbbf24]'
-          : 'bg-white border-gray-200'
+      className={`w-full text-left flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 last:border-0 transition-colors ${
+        test.status === 'active' ? 'bg-[#fff8e0]' : 'bg-white hover:bg-gray-50'
       }`}
     >
-      <div>
-        <div className="font-semibold text-gray-900 text-sm flex items-center gap-2">
-          {test.name}
-          {test.status === 'active' && (
-            <span className="text-xs bg-yellow-400 text-yellow-900 px-1.5 py-0.5 rounded-full font-medium">
-              진행중
+      {/* 상태 dot */}
+      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+        test.status === 'active' ? 'bg-yellow-400' : 'bg-gray-300'
+      }`} />
+
+      {/* 테스트명 */}
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-medium text-gray-800 truncate">{test.name}</div>
+        <div className="text-xs text-gray-400 mt-0.5">
+          Run {test.runs.length}차
+          {activeRun && (
+            <span className="ml-1.5 text-yellow-600 font-medium">
+              · Run {activeRun.id} 진행중
             </span>
           )}
         </div>
-        <div className="text-xs text-gray-500 mt-0.5">
-          {test.productName && `${test.productName} · `}Run {test.runs.length}차 · 최근 {lastDate}
-        </div>
       </div>
-      <span className="text-gray-400 text-lg">›</span>
+
+      {/* 날짜 + 배지 */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <span className="text-xs text-gray-400">{lastDate}</span>
+        {test.status === 'active' && (
+          <span className="text-[10px] bg-yellow-400 text-yellow-900 px-1.5 py-0.5 rounded-full font-semibold">
+            진행중
+          </span>
+        )}
+        <span className="text-gray-300 text-sm">›</span>
+      </div>
     </button>
   )
 }
 
-// ─── 폴더 카드 ────────────────────────────────────────────────────
-function FolderCard({
+// ─── 폴더 아코디언 ───────────────────────────────────────────────
+function FolderAccordion({
   folder,
   tests,
   search,
@@ -52,16 +65,16 @@ function FolderCard({
   onNewTest: (folderId: string) => void
 }) {
   const [open, setOpen] = useState(true)
-  const deleteFolder = useAppStore(s => s.deleteFolder)
-  const renameFolder = useAppStore(s => s.renameFolder)
   const [editing, setEditing] = useState(false)
   const [editName, setEditName] = useState(folder.name)
+  const deleteFolder = useAppStore(s => s.deleteFolder)
+  const renameFolder = useAppStore(s => s.renameFolder)
 
-  const filtered = tests.filter(t =>
-    t.name.toLowerCase().includes(search.toLowerCase()) ||
-    t.productName.toLowerCase().includes(search.toLowerCase())
+  const filtered = tests.filter(
+    t =>
+      t.name.toLowerCase().includes(search.toLowerCase()) ||
+      t.productName.toLowerCase().includes(search.toLowerCase())
   )
-
   const hasActive = filtered.some(t => t.status === 'active')
 
   function handleRename() {
@@ -70,70 +83,85 @@ function FolderCard({
   }
 
   return (
-    <div className="mb-3">
+    <div className={`mb-3 rounded-xl overflow-hidden border ${
+      hasActive ? 'border-yellow-300' : 'border-gray-200'
+    }`}>
       {/* 폴더 헤더 */}
-      <div
-        className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${
-          hasActive ? 'bg-yellow-50 border-yellow-200' : 'bg-gray-100 border-gray-200'
-        }`}
-      >
+      <div className={`flex items-center px-4 py-3 ${
+        hasActive ? 'bg-yellow-50' : 'bg-gray-50'
+      }`}>
+        {/* 펼침 토글 */}
         <button
           onClick={() => setOpen(o => !o)}
           className="flex items-center gap-2 flex-1 min-w-0"
         >
-          <span className="text-base">{open ? '📂' : '📁'}</span>
+          <span className="text-base leading-none">{open ? '📂' : '📁'}</span>
           {editing ? (
             <input
-              className="flex-1 text-sm font-semibold bg-transparent border-b border-gray-400 outline-none"
+              className="flex-1 text-sm font-bold bg-transparent border-b border-gray-400 outline-none"
               value={editName}
               autoFocus
               onChange={e => setEditName(e.target.value)}
               onBlur={handleRename}
-              onKeyDown={e => e.key === 'Enter' && handleRename()}
+              onKeyDown={e => {
+                if (e.key === 'Enter') handleRename()
+                if (e.key === 'Escape') setEditing(false)
+              }}
               onClick={e => e.stopPropagation()}
             />
           ) : (
-            <span className="flex-1 text-sm font-semibold text-gray-800 truncate text-left">
+            <span className="flex-1 text-sm font-bold text-gray-800 truncate text-left">
               {folder.name}
             </span>
           )}
-          <span className="text-xs text-gray-400 flex-shrink-0">{filtered.length}개</span>
-          <span className="text-gray-400 text-xs">{open ? '▾' : '▸'}</span>
+          <span className="text-xs text-gray-400 ml-1 flex-shrink-0">
+            {filtered.length}개
+          </span>
+          <span className="text-gray-400 text-xs ml-1">{open ? '▾' : '▸'}</span>
         </button>
 
-        {/* 폴더 메뉴 */}
-        <button
-          onClick={() => setEditing(true)}
-          className="text-gray-400 text-xs px-1.5 py-1 hover:text-gray-600"
-        >
-          ✏️
-        </button>
-        <button
-          onClick={() => onNewTest(folder.id)}
-          className="text-gray-400 text-xs px-1.5 py-1 hover:text-gray-600"
-        >
-          +
-        </button>
-        <button
-          onClick={() => {
-            if (confirm(`"${folder.name}" 폴더를 삭제할까요?\n테스트는 미분류로 이동됩니다.`))
-              deleteFolder(folder.id)
-          }}
-          className="text-gray-300 text-xs px-1.5 py-1 hover:text-red-400"
-        >
-          ✕
-        </button>
+        {/* 액션 버튼 */}
+        <div className="flex items-center gap-1 ml-2">
+          <button
+            onClick={() => setEditing(true)}
+            className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-600 text-xs rounded-lg hover:bg-gray-200"
+          >
+            ✏️
+          </button>
+          <button
+            onClick={() => onNewTest(folder.id)}
+            className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-gray-800 text-base font-bold rounded-lg hover:bg-gray-200"
+          >
+            +
+          </button>
+          <button
+            onClick={() => {
+              if (confirm(`"${folder.name}" 폴더를 삭제할까요?\n테스트는 미분류로 이동됩니다.`))
+                deleteFolder(folder.id)
+            }}
+            className="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-red-400 text-xs rounded-lg hover:bg-gray-200"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
-      {/* 폴더 내 테스트 목록 */}
+      {/* 하위 테스트 목록 (아코디언) */}
       {open && (
-        <div className="mt-1 pl-3">
+        <div className="divide-y divide-gray-100">
           {filtered.length === 0 ? (
-            <div className="text-xs text-gray-400 py-2 px-2">
-              {search ? '검색 결과 없음' : '테스트가 없습니다'}
+            <div className="px-4 py-3 text-xs text-gray-400 bg-white">
+              {search ? '검색 결과 없음' : (
+                <button
+                  onClick={() => onNewTest(folder.id)}
+                  className="text-blue-500 hover:underline"
+                >
+                  + 테스트 추가하기
+                </button>
+              )}
             </div>
           ) : (
-            filtered.map(t => <TestItem key={t.id} test={t} />)
+            filtered.map(t => <TestRow key={t.id} test={t} />)
           )}
         </div>
       )}
@@ -141,7 +169,7 @@ function FolderCard({
   )
 }
 
-// ─── 홈 메인 ────────────────────────────────────────────────────
+// ─── 홈 메인 ─────────────────────────────────────────────────────
 export default function Home() {
   const tests = useAppStore(s => s.tests)
   const folders = useAppStore(s => s.folders)
@@ -169,19 +197,18 @@ export default function Home() {
     setFabOpen(false)
   }
 
-  // 검색 필터 (폴더 없는 테스트)
+  // 미분류 테스트
   const ungrouped = tests.filter(t => !t.folderId)
-  const filteredUngrouped = ungrouped.filter(t =>
-    t.name.toLowerCase().includes(search.toLowerCase()) ||
-    t.productName.toLowerCase().includes(search.toLowerCase())
+  const filteredUngrouped = ungrouped.filter(
+    t =>
+      t.name.toLowerCase().includes(search.toLowerCase()) ||
+      t.productName.toLowerCase().includes(search.toLowerCase())
   )
-  const activeUngrouped = filteredUngrouped.filter(t => t.status === 'active')
-  const doneUngrouped = filteredUngrouped.filter(t => t.status === 'done')
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {/* 헤더 */}
-      <div className="bg-[#111111] text-white px-4 py-3 flex items-center justify-between">
+      <div className="bg-[#111111] text-white px-4 py-3">
         <span className="font-bold text-base">Line Test</span>
       </div>
 
@@ -201,7 +228,7 @@ export default function Home() {
           <input
             autoFocus
             className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-gray-500"
-            placeholder="폴더 이름 입력..."
+            placeholder="제품명 입력... (예: PE-LLD)"
             value={newFolderName}
             onChange={e => setNewFolderName(e.target.value)}
             onKeyDown={e => {
@@ -227,9 +254,9 @@ export default function Home() {
       {/* 목록 */}
       <div className="flex-1 px-4 py-3 pb-28">
 
-        {/* 폴더 목록 */}
+        {/* 폴더 아코디언 목록 */}
         {folders.map(folder => (
-          <FolderCard
+          <FolderAccordion
             key={folder.id}
             folder={folder}
             tests={tests.filter(t => t.folderId === folder.id)}
@@ -240,60 +267,45 @@ export default function Home() {
 
         {/* 미분류 테스트 */}
         {filteredUngrouped.length > 0 && (
-          <div>
+          <div className="mb-3">
             {folders.length > 0 && (
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 mt-1">
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 px-1">
                 미분류
               </div>
             )}
-            {activeUngrouped.length > 0 && (
-              <div className="mb-3">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                  진행중
-                </div>
-                {activeUngrouped.map(t => <TestItem key={t.id} test={t} />)}
-              </div>
-            )}
-            {doneUngrouped.length > 0 && (
-              <div>
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                  완료됨
-                </div>
-                {doneUngrouped.map(t => <TestItem key={t.id} test={t} />)}
-              </div>
-            )}
+            <div className="rounded-xl overflow-hidden border border-gray-200">
+              {filteredUngrouped.map(t => <TestRow key={t.id} test={t} />)}
+            </div>
           </div>
         )}
 
         {/* 빈 상태 */}
         {folders.length === 0 && filteredUngrouped.length === 0 && (
-          <div className="text-center text-gray-400 text-sm mt-16">
-            {search ? '검색 결과가 없습니다' : '폴더나 테스트를 추가해보세요'}
+          <div className="text-center text-gray-400 text-sm mt-20 space-y-2">
+            <div className="text-4xl">📁</div>
+            <div>{search ? '검색 결과가 없습니다' : '제품 폴더를 만들어보세요'}</div>
           </div>
         )}
       </div>
 
       {/* FAB 배경 클릭 닫기 */}
       {fabOpen && (
-        <div
-          className="fixed inset-0 z-10"
-          onClick={() => setFabOpen(false)}
-        />
+        <div className="fixed inset-0 z-10" onClick={() => setFabOpen(false)} />
       )}
 
-      {/* FAB 컨테이너 — max-w-md 안에 고정 */}
+      {/* FAB — max-w-md 컨테이너 안에 고정 */}
       <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto pointer-events-none z-20">
         {fabOpen && (
           <div className="absolute bottom-24 right-4 flex flex-col gap-2 items-end pointer-events-auto">
             <button
               onClick={() => { setShowFolderInput(true); setFabOpen(false) }}
-              className="flex items-center gap-2 bg-white border border-gray-200 shadow-md rounded-full px-4 py-2.5 text-sm font-medium text-gray-700"
+              className="flex items-center gap-2 bg-white border border-gray-200 shadow-lg rounded-full px-4 py-2.5 text-sm font-medium text-gray-700"
             >
-              <span>📁</span> 새 폴더
+              <span>📁</span> 새 제품 폴더
             </button>
             <button
               onClick={() => handleNewTest()}
-              className="flex items-center gap-2 bg-white border border-gray-200 shadow-md rounded-full px-4 py-2.5 text-sm font-medium text-gray-700"
+              className="flex items-center gap-2 bg-white border border-gray-200 shadow-lg rounded-full px-4 py-2.5 text-sm font-medium text-gray-700"
             >
               <span>📋</span> 새 테스트
             </button>
@@ -301,7 +313,7 @@ export default function Home() {
         )}
         <button
           onClick={() => setFabOpen(o => !o)}
-          className={`absolute bottom-6 right-4 w-14 h-14 rounded-full shadow-lg text-2xl flex items-center justify-center pointer-events-auto transition-transform ${
+          className={`absolute bottom-6 right-4 w-14 h-14 rounded-full shadow-lg text-2xl flex items-center justify-center pointer-events-auto transition-transform duration-200 ${
             fabOpen ? 'bg-gray-700 rotate-45' : 'bg-gray-900'
           } text-white`}
         >
