@@ -1,0 +1,16 @@
+{
+  "name": "맞춤 계산기",
+  "short_name": "계산기",
+  "description": "품목별 기준값을 등록해 쓰는 맞춤 계산기",
+  "lang": "ko",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e8e6df",
+  "theme_color": "#e8e6df",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

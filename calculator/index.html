@@ -1,0 +1,1923 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>맞춤 계산기</title>
+<meta name="description" content="품목별 기준값을 등록해 쓰는 맞춤 계산기">
+<meta name="theme-color" content="#e8e6df" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121311" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="맞춤 계산기">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23262823'/%3E%3Crect x='12' y='10' width='40' height='16' rx='4' fill='%23c8d3b9'/%3E%3Crect x='12' y='32' width='10' height='9' rx='3' fill='%23f2f1ec'/%3E%3Crect x='27' y='32' width='10' height='9' rx='3' fill='%23f2f1ec'/%3E%3Crect x='42' y='32' width='10' height='22' rx='3' fill='%23e8742a'/%3E%3Crect x='12' y='45' width='10' height='9' rx='3' fill='%23f2f1ec'/%3E%3Crect x='27' y='45' width='10' height='9' rx='3' fill='%23f2f1ec'/%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #e8e6df;
+  --surface: #f7f6f2;
+  --surface-2: #efeee8;
+  --ink: #1c1d1a;
+  --muted: #6c6e66;
+  --line: #d9d7ce;
+  --key: #ffffff;
+  --key-ink: #1c1d1a;
+  --key-shadow: #c9c7bd;
+  --fn: #e4e2d9;
+  --accent: #e8742a;
+  --accent-press: #b9581b;
+  --accent-soft: #f9e2d0;
+  --lcd: #c8d3b9;
+  --lcd-ink: #1d2a18;
+  --lcd-dim: #5f6e55;
+  --danger: #c43d2f;
+  --danger-soft: #f6dcd8;
+  --ok: #2f7d4a;
+  --overlay: rgba(28, 29, 26, .42);
+  --shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 12px 32px rgba(40, 38, 30, .10);
+  --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "D2Coding", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121311; --surface: #1d1f1b; --surface-2: #252722; --ink: #ecebe5; --muted: #9b9d94; --line: #34372f;
+    --key: #2c2f29; --key-ink: #ecebe5; --key-shadow: #121310; --fn: #3a3d36; --accent: #f08436; --accent-press: #a8561c;
+    --accent-soft: #42301f; --lcd: #1b2517; --lcd-ink: #c4e8a0; --lcd-dim: #7f9b6a; --danger: #ef6a5a; --danger-soft: #3d221f;
+    --ok: #6cc58b; --overlay: rgba(0,0,0,.6); --shadow: 0 12px 32px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121311; --surface: #1d1f1b; --surface-2: #252722; --ink: #ecebe5; --muted: #9b9d94; --line: #34372f;
+  --key: #2c2f29; --key-ink: #ecebe5; --key-shadow: #121310; --fn: #3a3d36; --accent: #f08436; --accent-press: #a8561c;
+  --accent-soft: #42301f; --lcd: #1b2517; --lcd-ink: #c4e8a0; --lcd-dim: #7f9b6a; --danger: #ef6a5a; --danger-soft: #3d221f;
+  --ok: #6cc58b; --overlay: rgba(0,0,0,.6); --shadow: 0 12px 32px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink);
+  font-family: var(--sans); font-size: 15px; line-height: 1.45;
+  -webkit-tap-highlight-color: transparent;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: .45; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.shell {
+  max-width: 480px; margin: 0 auto;
+  padding: max(12px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+}
+.shell.wide { max-width: 760px; }
+
+/* ---------- top bar ---------- */
+.topbar { display: flex; align-items: center; gap: 8px; min-height: 52px; margin-bottom: 8px; }
+.topbar h1 { flex: 1; min-width: 0; margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand h1 { flex: none; font-size: 22px; }
+.logo { width: 34px; height: 34px; border-radius: 9px; flex: none; display: block; }
+.icon-btn {
+  width: 42px; height: 42px; flex: none; display: inline-grid; place-items: center;
+  border: 0; border-radius: 12px; background: transparent; color: var(--ink);
+}
+.icon-btn:hover { background: var(--surface-2); }
+.icon-btn[aria-pressed="true"] { background: var(--fn); color: var(--ink); }
+.icon-btn svg { width: 22px; height: 22px; }
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 44px; padding: 0 16px; border-radius: 12px; border: 1.5px solid var(--line);
+  background: var(--key); color: var(--ink); font-weight: 600; white-space: nowrap;
+}
+.btn:hover { border-color: var(--muted); }
+.btn svg { width: 18px; height: 18px; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary:hover { filter: brightness(1.05); }
+.btn.danger { color: var(--danger); border-color: var(--danger-soft); background: transparent; }
+.btn.danger.solid { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn.ghost { background: transparent; border-color: transparent; }
+.btn.ghost:hover { background: var(--surface-2); }
+.btn.sm { height: 36px; padding: 0 12px; font-size: 14px; border-radius: 10px; }
+.btn.block { width: 100%; }
+
+/* ---------- home ---------- */
+.home-sub { margin: 0 0 16px; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (min-width: 640px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.card {
+  position: relative; display: flex; flex-direction: column; min-height: 150px; padding: 14px;
+  border-radius: 18px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow);
+  text-align: left; color: var(--ink); transition: transform .12s ease;
+}
+.card:active { transform: scale(.985); }
+.card-open { position: absolute; inset: 0; border: 0; background: transparent; border-radius: 18px; }
+.card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; pointer-events: none; }
+.card-top .icon-btn { pointer-events: auto; position: relative; width: 34px; height: 34px; margin: -6px -6px -6px 0; }
+.card-name { font-size: 16px; font-weight: 700; line-height: 1.3; margin: 0 0 4px; overflow-wrap: anywhere; pointer-events: none; }
+.card-meta { margin-top: auto; font-size: 13px; color: var(--muted); pointer-events: none; }
+.badge {
+  display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px; border-radius: 999px;
+  font-size: 12px; font-weight: 700; background: var(--surface-2); color: var(--ink); white-space: nowrap; flex: none;
+}
+.badge svg { width: 13px; height: 13px; }
+.badge.t-convert { background: #dfe8d3; color: #33502a; }
+.badge.t-formula { background: #dde4ef; color: #2b4166; }
+.badge.t-blend { background: #f4e2cf; color: #77461c; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .badge.t-convert { background: #27331f; color: #b5d69a; }
+  :root:not([data-theme="light"]) .badge.t-formula { background: #232c3b; color: #a9c0e6; }
+  :root:not([data-theme="light"]) .badge.t-blend { background: #3a2c1e; color: #eebf8c; }
+}
+:root[data-theme="dark"] .badge.t-convert { background: #27331f; color: #b5d69a; }
+:root[data-theme="dark"] .badge.t-formula { background: #232c3b; color: #a9c0e6; }
+:root[data-theme="dark"] .badge.t-blend { background: #3a2c1e; color: #eebf8c; }
+.card.add {
+  align-items: center; justify-content: center; gap: 8px; box-shadow: none; background: transparent;
+  border: 2px dashed var(--line); color: var(--muted); font-weight: 600;
+}
+.card.add:hover { border-color: var(--accent); color: var(--accent); }
+.card.add svg { width: 28px; height: 28px; }
+.empty { text-align: center; padding: 28px 16px; color: var(--muted); }
+
+/* ---------- device (calculator body) ---------- */
+.device {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 26px;
+  padding: 14px; box-shadow: var(--shadow);
+}
+.lcd {
+  position: relative; background: var(--lcd); color: var(--lcd-ink); border-radius: 14px;
+  padding: 12px 14px 12px; min-height: 132px; display: flex; flex-direction: column;
+  box-shadow: inset 0 2px 7px rgba(0,0,0,.22), inset 0 0 0 1px rgba(0,0,0,.06);
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+}
+.lcd-top { display: flex; justify-content: space-between; gap: 12px; font-size: 12.5px; color: var(--lcd-dim); padding-right: 34px; }
+.lcd-top span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lcd-expr { margin-top: auto; min-height: 20px; text-align: right; font-size: 14px; color: var(--lcd-dim); overflow-wrap: anywhere; }
+.lcd-main { display: flex; justify-content: flex-end; align-items: baseline; gap: 8px; text-align: right; line-height: 1.1; }
+.lcd-main .num { font-size: clamp(32px, 10vw, 46px); font-weight: 600; letter-spacing: .01em; overflow-wrap: anywhere; min-width: 0; }
+.lcd-main .unit { font-size: 18px; font-weight: 600; flex: none; }
+.lcd-main.dim { color: var(--lcd-dim); }
+.lcd-main.err .num { font-size: 22px; }
+.lcd-rows { margin-top: 8px; padding-top: 7px; border-top: 1px dashed color-mix(in srgb, var(--lcd-ink) 30%, transparent); display: grid; gap: 2px; font-size: 14px; }
+.lcd-row { display: flex; justify-content: space-between; gap: 10px; }
+.lcd-row b { font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+.lcd-copy {
+  position: absolute; top: 6px; right: 6px; width: 32px; height: 32px; border: 0; border-radius: 9px;
+  background: transparent; color: var(--lcd-dim); display: grid; place-items: center;
+}
+.lcd-copy:hover { background: color-mix(in srgb, var(--lcd-ink) 12%, transparent); color: var(--lcd-ink); }
+.lcd-copy svg { width: 17px; height: 17px; }
+
+.panel { margin-top: 14px; display: grid; gap: 12px; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.panel-head h2 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+.link-btn { border: 0; background: none; padding: 4px 2px; font-size: 13px; font-weight: 600; color: var(--accent); }
+.link-btn:hover { text-decoration: underline; }
+
+.field-label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 0 2px 5px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.field-label .key-tag { font-family: var(--mono); font-size: 11.5px; font-weight: 600; color: var(--muted); background: var(--surface-2); border-radius: 6px; padding: 0 6px; }
+.input-wrap {
+  display: flex; align-items: center; background: var(--key); border: 1.5px solid var(--line);
+  border-radius: 13px; height: 54px; padding: 0 14px; transition: border-color .12s, box-shadow .12s;
+}
+.input-wrap:focus-within, .input-wrap.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.input-wrap.bad { border-color: var(--danger); }
+.input-wrap input {
+  flex: 1; min-width: 0; width: 100%; border: 0; background: transparent; outline: none;
+  font: 600 22px var(--mono); text-align: right; color: var(--ink); font-variant-numeric: tabular-nums;
+}
+.input-wrap input::placeholder { color: var(--line); }
+.input-wrap .unit { margin-left: 8px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.input-wrap.sm { height: 44px; border-radius: 11px; padding: 0 10px; }
+.input-wrap.sm input { font-size: 17px; }
+.input-wrap.sm .unit { font-size: 13px; }
+
+.dir { display: grid; place-items: center; height: 18px; color: var(--muted); }
+.dir svg { width: 18px; height: 18px; transition: transform .18s ease; }
+.dir.up svg { transform: rotate(180deg); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  height: 38px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--key);
+  font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; max-width: 100%;
+}
+.chip span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chip:hover { border-color: var(--muted); }
+.chip[aria-checked="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.chip.add { border-style: dashed; color: var(--muted); background: transparent; }
+.chip.add:hover { color: var(--accent); border-color: var(--accent); }
+.chip svg { width: 16px; height: 16px; }
+.search {
+  width: 100%; height: 40px; border-radius: 11px; border: 1.5px solid var(--line); background: var(--key);
+  padding: 0 12px; outline: none;
+}
+.search:focus { border-color: var(--accent); }
+.notice { padding: 16px; border-radius: 14px; background: var(--surface-2); color: var(--muted); text-align: center; display: grid; gap: 10px; justify-items: center; }
+
+/* blend rows */
+.brows { display: grid; gap: 10px; }
+.brow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px; gap: 8px; align-items: center; padding: 10px; border-radius: 14px; background: var(--surface-2); }
+.brow > .select { grid-column: 1 / 3; grid-row: 1; }
+.brow > .del { grid-column: 3; grid-row: 1; }
+.brow > .amount { grid-column: 1 / 3; grid-row: 2; }
+.brow.has-custom > .amount { grid-column: 2 / 3; }
+.brow > .custom { grid-column: 1 / 2; grid-row: 2; }
+.brow-meta { grid-column: 1 / -1; font-size: 12.5px; color: var(--muted); font-family: var(--mono); margin: -2px 2px 0; }
+.select {
+  width: 100%; height: 44px; border-radius: 11px; border: 1.5px solid var(--line); background: var(--key);
+  padding: 0 10px; font-weight: 600; outline: none; min-width: 0;
+}
+.select:focus { border-color: var(--accent); }
+.mini-btn { width: 36px; height: 36px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); display: grid; place-items: center; }
+.mini-btn:hover { background: var(--fn); color: var(--ink); }
+.mini-btn.del:hover { color: var(--danger); background: var(--danger-soft); }
+.mini-btn svg { width: 18px; height: 18px; }
+
+/* keypad */
+.keypad-wrap { margin-top: 14px; }
+.keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.key {
+  height: 54px; border: 0; border-radius: 14px; background: var(--key); color: var(--key-ink);
+  font: 600 22px var(--sans); box-shadow: 0 3px 0 var(--key-shadow), 0 1px 3px rgba(0,0,0,.06);
+  touch-action: manipulation; user-select: none; -webkit-user-select: none;
+  transition: transform .05s, box-shadow .05s;
+}
+.key:active, .key.pressed { transform: translateY(3px); box-shadow: 0 0 0 var(--key-shadow); }
+.key.fn { background: var(--fn); font-size: 17px; }
+.key.op { background: var(--accent); color: #fff; box-shadow: 0 3px 0 var(--accent-press); }
+.key.op:active { box-shadow: 0 0 0 var(--accent-press); }
+.key.wide { grid-column: span 2; }
+.key svg { width: 24px; height: 24px; vertical-align: middle; }
+.key-hint { margin: 10px 2px 0; font-size: 12px; color: var(--muted); text-align: center; }
+@media (min-height: 860px) { .key { height: 60px; } }
+
+/* ---------- editor ---------- */
+.type-line { display: flex; align-items: center; gap: 8px; margin: -2px 0 14px; color: var(--muted); font-size: 13px; }
+.sec { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin-bottom: 12px; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.sec h2 { margin: 0 0 12px; font-size: 15px; font-weight: 700; }
+.sec-head h2 { margin: 0; }
+.sec .hint, .help { font-size: 12.5px; color: var(--muted); }
+.help { margin: 8px 0 0; }
+.f { display: grid; gap: 5px; margin-bottom: 12px; }
+.f:last-child { margin-bottom: 0; }
+.f > span { font-size: 13px; color: var(--muted); font-weight: 600; }
+.txt {
+  width: 100%; height: 44px; border-radius: 11px; border: 1.5px solid var(--line); background: var(--key);
+  padding: 0 12px; outline: none; min-width: 0;
+}
+.txt:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.txt.mono { font-family: var(--mono); }
+.txt.invalid, .input-wrap.invalid { border-color: var(--danger); box-shadow: 0 0 0 3px var(--danger-soft); }
+textarea.txt { height: auto; min-height: 140px; padding: 10px 12px; resize: vertical; font-family: var(--mono); font-size: 14px; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) 96px; gap: 10px 10px; }
+.grid2 .f { margin: 0; }
+.unit-arrow { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12.5px; }
+.unit-arrow::before, .unit-arrow::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.stepper { display: inline-flex; align-items: center; border: 1.5px solid var(--line); border-radius: 11px; background: var(--key); height: 44px; }
+.stepper button { width: 44px; height: 100%; border: 0; background: transparent; font-size: 20px; font-weight: 600; }
+.stepper output { min-width: 40px; text-align: center; font-family: var(--mono); font-weight: 600; font-size: 17px; }
+.stepper-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.stepper-row .preview { font-family: var(--mono); color: var(--muted); font-size: 13px; }
+
+.erows { display: grid; gap: 8px; }
+.erow {
+  display: grid; grid-template-columns: minmax(0, 1fr) 132px auto; gap: 8px; align-items: center;
+  padding: 8px; border-radius: 13px; background: var(--surface-2);
+}
+.erow .tools { display: flex; }
+.erow .tools .mini-btn { width: 32px; height: 36px; }
+.erow.formula-in { grid-template-columns: 58px minmax(0, 1fr) 70px auto; }
+.erow.formula-out { grid-template-columns: 58px minmax(0, 1fr) 70px auto; }
+.erow .full { grid-column: 1 / -1; }
+.erow .txt { height: 40px; }
+.erow .input-wrap.sm { height: 40px; }
+.erow .key-input { text-align: center; font-family: var(--mono); font-weight: 700; padding: 0 4px; }
+.vars { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.var-chip { height: 28px; padding: 0 9px; border-radius: 8px; border: 1px solid var(--line); background: var(--key); font: 600 12.5px var(--mono); }
+.var-chip:hover { border-color: var(--accent); color: var(--accent); }
+.var-chip.op { color: var(--muted); }
+.fmsg { font-size: 12.5px; font-family: var(--mono); color: var(--muted); }
+.fmsg.err { color: var(--danger); }
+.fmsg.ok { color: var(--ok); }
+.row-empty { padding: 14px; text-align: center; color: var(--muted); font-size: 13.5px; border: 1.5px dashed var(--line); border-radius: 13px; }
+.sec-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+@media (max-width: 420px) {
+  .erow { grid-template-columns: minmax(0, 1fr) auto; }
+  .erow > .name-input { grid-column: 1 / -1; }
+  .erow.formula-in, .erow.formula-out { grid-template-columns: 52px minmax(0, 1fr) auto; }
+  .erow.formula-in .label-input, .erow.formula-out .label-input { grid-column: 2 / -1; }
+  .erow.formula-in .unit-input, .erow.formula-out .unit-input { grid-column: 1 / 3; }
+}
+.danger-zone { display: flex; gap: 8px; flex-wrap: wrap; }
+.ed-footer { position: sticky; bottom: 0; padding: 12px 0 calc(4px + env(safe-area-inset-bottom)); background: linear-gradient(transparent, var(--bg) 30%); }
+
+/* type picker */
+.type-list { display: grid; gap: 10px; }
+.type-opt {
+  display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; text-align: left;
+  padding: 14px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--key);
+}
+.type-opt:hover { border-color: var(--accent); }
+.type-ico { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; }
+.type-ico svg { width: 24px; height: 24px; }
+.type-ico.t-convert { background: #dfe8d3; color: #33502a; }
+.type-ico.t-formula { background: #dde4ef; color: #2b4166; }
+.type-ico.t-blend { background: #f4e2cf; color: #77461c; }
+.type-opt b { display: block; font-size: 16px; margin-bottom: 2px; }
+.type-opt span { display: block; font-size: 13.5px; color: var(--muted); }
+.type-opt small { display: block; margin-top: 6px; font-size: 12.5px; color: var(--ink); opacity: .75; }
+
+/* ---------- sheet / dialog ---------- */
+.overlay {
+  position: fixed; inset: 0; z-index: 50; background: var(--overlay); display: flex; align-items: flex-end; justify-content: center;
+  animation: fade .15s ease;
+}
+@media (min-width: 560px) { .overlay { align-items: center; padding: 16px; } }
+.sheet {
+  width: 100%; max-width: 480px; max-height: 88vh; overflow: auto; background: var(--surface); color: var(--ink);
+  border-radius: 22px 22px 0 0; padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+  box-shadow: 0 -10px 40px rgba(0,0,0,.2); animation: up .2s ease;
+}
+@media (min-width: 560px) { .sheet { border-radius: 22px; padding-bottom: 16px; } }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; min-height: 48px; }
+.sheet-head h3 { margin: 0; font-size: 17px; }
+.sheet-body { padding: 4px 0 8px; }
+.sheet-body p { margin: 0 0 10px; color: var(--muted); }
+.sheet-actions { display: flex; gap: 8px; margin-top: 8px; }
+.sheet-actions .btn { flex: 1; }
+.menu { display: grid; gap: 2px; }
+.menu button {
+  display: flex; align-items: center; gap: 12px; height: 50px; padding: 0 10px; border: 0; border-radius: 12px;
+  background: transparent; text-align: left; font-weight: 600;
+}
+.menu button:hover { background: var(--surface-2); }
+.menu button svg { width: 20px; height: 20px; color: var(--muted); }
+.menu button.danger { color: var(--danger); }
+.menu button.danger svg { color: var(--danger); }
+.menu hr { border: 0; border-top: 1px solid var(--line); margin: 4px 0; }
+.info { font-size: 14px; color: var(--ink); }
+.info h4 { margin: 14px 0 6px; font-size: 14px; }
+.info ol, .info ul { margin: 0; padding-left: 20px; color: var(--muted); }
+.info li { margin-bottom: 4px; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes up { from { transform: translateY(24px); opacity: .6; } }
+
+.toast {
+  position: fixed; left: 50%; top: calc(14px + env(safe-area-inset-top)); z-index: 60;
+  transform: translate(-50%, -16px); opacity: 0; pointer-events: none;
+  background: var(--ink); color: var(--surface); padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 14px;
+  transition: opacity .18s, transform .18s; max-width: calc(100% - 32px); text-align: center;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.err { background: var(--danger); color: #fff; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<noscript><p style="padding:24px">이 계산기는 JavaScript가 필요합니다.</p></noscript>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+<script>
+'use strict';
+
+/* =========================================================
+   아이콘
+   ========================================================= */
+const svg = (d, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${d}</svg>`;
+const I = {
+  back: svg('<path d="M15 18l-6-6 6-6"/>'),
+  more: svg('<circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/>'),
+  plus: svg('<path d="M12 5v14M5 12h14"/>'),
+  edit: svg('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>'),
+  copy: svg('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 01-1-1V4a1 1 0 011-1h10a1 1 0 011 1v1"/>'),
+  trash: svg('<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>'),
+  up: svg('<path d="M12 19V5M6 11l6-6 6 6"/>'),
+  down: svg('<path d="M12 5v14M6 13l6 6 6-6"/>'),
+  x: svg('<path d="M18 6L6 18M6 6l12 12"/>'),
+  keypad: svg('<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8h.01M12 8h.01M16 8h.01M8 12h.01M12 12h.01M16 12h.01M8 16h8"/>'),
+  arrow: svg('<path d="M12 4v16M6 14l6 6 6-6"/>'),
+  backspace: svg('<path d="M21 5H9l-7 7 7 7h12a1 1 0 001-1V6a1 1 0 00-1-1z"/><path d="M17 9l-6 6M11 9l6 6"/>'),
+  download: svg('<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>'),
+  upload: svg('<path d="M12 21V9M7 14l5-5 5 5M4 3h16"/>'),
+  info: svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'),
+  sparkle: svg('<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/>'),
+  clipboard: svg('<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/>'),
+  t_convert: svg('<path d="M7 4L3 8l4 4"/><path d="M3 8h14"/><path d="M17 20l4-4-4-4"/><path d="M21 16H7"/>'),
+  t_formula: svg('<path d="M4 7h6M7 4v6M14 7h6M4 17h6M14 15l5 5M19 15l-5 5"/>'),
+  t_blend: svg('<path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 006 21h12a1.7 1.7 0 001.5-2.5L14 9V3"/><path d="M7 15h10"/>'),
+};
+const LOGO = `<svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#262823"/><rect x="12" y="10" width="40" height="16" rx="4" fill="#c8d3b9"/><rect x="12" y="32" width="10" height="9" rx="3" fill="#f2f1ec"/><rect x="27" y="32" width="10" height="9" rx="3" fill="#f2f1ec"/><rect x="42" y="32" width="10" height="22" rx="3" fill="#e8742a"/><rect x="12" y="45" width="10" height="9" rx="3" fill="#f2f1ec"/><rect x="27" y="45" width="10" height="9" rx="3" fill="#f2f1ec"/></svg>`;
+
+/* =========================================================
+   유틸
+   ========================================================= */
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-3);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+const isTouch = () => window.matchMedia('(pointer: coarse)').matches;
+
+const nfCache = new Map();
+function fmt(n, d = 2) {
+  if (typeof n !== 'number' || !Number.isFinite(n)) return '—';
+  if (Math.abs(n) < 1e-12) n = 0;
+  let f = nfCache.get(d);
+  if (!f) { f = new Intl.NumberFormat('ko-KR', { maximumFractionDigits: d }); nfCache.set(d, f); }
+  return f.format(n);
+}
+/** 붙여넣기/복사용: 쉼표 없는 숫자 */
+function plain(n, d = 2) {
+  if (!Number.isFinite(n)) return '';
+  const p = 10 ** d;
+  let r = Math.round(n * p) / p;
+  if (Object.is(r, -0)) r = 0;
+  return String(r);
+}
+
+/* =========================================================
+   수식 엔진 (eval 사용 안 함)
+   ========================================================= */
+class CalcError extends Error {}
+const FN = {
+  round: (x, n = 0) => { const p = 10 ** n; return Math.round(x * p) / p; },
+  floor: (x, n = 0) => { const p = 10 ** n; return Math.floor(x * p) / p; },
+  ceil: (x, n = 0) => { const p = 10 ** n; return Math.ceil(x * p) / p; },
+  abs: Math.abs, sqrt: Math.sqrt, min: Math.min, max: Math.max, pow: Math.pow,
+  log: Math.log10, ln: Math.log,
+};
+const CONST = { PI: Math.PI };
+const ID_RE = /^[A-Za-z_가-힣][A-Za-z0-9_가-힣]*$/;
+
+function normalizeOps(s) {
+  return String(s).replace(/×/g, '*').replace(/÷/g, '/').replace(/[−–]/g, '-').replace(/＋/g, '+');
+}
+function tokenize(src) {
+  const s = normalizeOps(src);
+  const toks = [];
+  let i = 0;
+  while (i < s.length) {
+    const ch = s[i];
+    if (/\s/.test(ch)) { i++; continue; }
+    if (/[0-9.]/.test(ch)) {
+      const m = /^(\d+\.?\d*|\.\d+)(e[+-]?\d+)?/i.exec(s.slice(i));
+      if (!m) throw new CalcError('숫자 형식이 올바르지 않아요');
+      toks.push({ t: 'num', v: parseFloat(m[0]) }); i += m[0].length; continue;
+    }
+    if (/[A-Za-z_가-힣]/.test(ch)) {
+      const m = /^[A-Za-z_가-힣][A-Za-z0-9_가-힣]*/.exec(s.slice(i));
+      toks.push({ t: 'id', v: m[0] }); i += m[0].length; continue;
+    }
+    if ('+-*/^(),'.includes(ch)) { toks.push({ t: 'op', v: ch }); i++; continue; }
+    throw new CalcError(`'${ch}' 문자는 쓸 수 없어요`);
+  }
+  return toks;
+}
+function parse(src) {
+  const toks = tokenize(src);
+  if (!toks.length) throw new CalcError('수식이 비어 있어요');
+  let p = 0;
+  const isOp = (v) => toks[p] && toks[p].t === 'op' && toks[p].v === v;
+  const expr = () => {
+    let n = term();
+    while (isOp('+') || isOp('-')) { const o = toks[p++].v; n = { k: 'bin', o, a: n, b: term() }; }
+    return n;
+  };
+  const term = () => {
+    let n = unary();
+    while (isOp('*') || isOp('/')) { const o = toks[p++].v; n = { k: 'bin', o, a: n, b: unary() }; }
+    return n;
+  };
+  const unary = () => {
+    if (isOp('-')) { p++; return { k: 'neg', a: unary() }; }
+    if (isOp('+')) { p++; return unary(); }
+    return power();
+  };
+  const power = () => {
+    const b = primary();
+    if (isOp('^')) { p++; return { k: 'bin', o: '^', a: b, b: unary() }; }
+    return b;
+  };
+  const primary = () => {
+    const t = toks[p++];
+    if (!t) throw new CalcError('수식이 끝나지 않았어요');
+    if (t.t === 'num') return { k: 'num', v: t.v };
+    if (t.t === 'id') {
+      if (isOp('(')) {
+        p++;
+        const args = [];
+        if (!isOp(')')) { args.push(expr()); while (isOp(',')) { p++; args.push(expr()); } }
+        if (!isOp(')')) throw new CalcError("')' 가 필요해요");
+        p++;
+        if (!FN[t.v]) throw new CalcError(`'${t.v}' 함수는 없어요`);
+        return { k: 'call', f: t.v, args };
+      }
+      return { k: 'var', v: t.v };
+    }
+    if (t.t === 'op' && t.v === '(') {
+      const n = expr();
+      if (!isOp(')')) throw new CalcError("')' 가 필요해요");
+      p++;
+      return n;
+    }
+    throw new CalcError(`'${t.v}' 위치가 올바르지 않아요`);
+  };
+  const ast = expr();
+  if (p < toks.length) throw new CalcError(`'${toks[p].v}' 앞에 연산자가 필요해요`);
+  return ast;
+}
+function astVars(n, out = new Set()) {
+  if (n.k === 'var') out.add(n.v);
+  else if (n.k === 'neg') astVars(n.a, out);
+  else if (n.k === 'bin') { astVars(n.a, out); astVars(n.b, out); }
+  else if (n.k === 'call') n.args.forEach((a) => astVars(a, out));
+  return out;
+}
+function evalAst(n, env) {
+  switch (n.k) {
+    case 'num': return n.v;
+    case 'var':
+      if (env && n.v in env) return env[n.v];
+      if (n.v in CONST) return CONST[n.v];
+      throw new CalcError(`'${n.v}' 를 찾을 수 없어요`);
+    case 'neg': return -evalAst(n.a, env);
+    case 'bin': {
+      const a = evalAst(n.a, env), b = evalAst(n.b, env);
+      switch (n.o) { case '+': return a + b; case '-': return a - b; case '*': return a * b; case '/': return a / b; case '^': return a ** b; }
+    }
+    case 'call': return FN[n.f](...n.args.map((x) => evalAst(x, env)));
+  }
+  throw new CalcError('계산할 수 없어요');
+}
+const astCache = new Map();
+function compile(src) {
+  const key = String(src);
+  if (astCache.has(key)) return astCache.get(key);
+  let res;
+  try { const ast = parse(key); res = { ok: true, ast, vars: astVars(ast) }; }
+  catch (e) { res = { ok: false, error: e instanceof CalcError ? e.message : '수식 오류' }; }
+  if (astCache.size > 500) astCache.clear();
+  astCache.set(key, res);
+  return res;
+}
+/** 입력칸의 값(숫자 또는 10+5 같은 사칙연산)을 계산 */
+function evalInput(text) {
+  const t = String(text ?? '').replace(/,/g, '').trim();
+  if (!t) return { empty: true, ok: false, value: NaN };
+  if (/^-?(\d+\.?\d*|\.\d+)$/.test(t)) return { ok: true, value: parseFloat(t), expr: false };
+  const c = compile(t);
+  if (!c.ok || c.vars.size) return { ok: false, value: NaN, error: true };
+  try {
+    const v = evalAst(c.ast, null);
+    return Number.isFinite(v) ? { ok: true, value: v, expr: true } : { ok: false, value: NaN, error: true };
+  } catch { return { ok: false, value: NaN, error: true }; }
+}
+const numOrNaN = (v) => (typeof v === 'number' ? v : evalInput(v).value);
+
+/* =========================================================
+   데이터 저장
+   ========================================================= */
+const STORE_KEY = 'custom-calculator.v1';
+const TYPES = {
+  convert: {
+    label: '환산', title: '환산형',
+    desc: '품목별 기준값을 등록해 두고 두 단위를 양방향으로 환산해요.',
+    example: '예) 원단 A 1m = 10g → 10m 입력 시 100g',
+  },
+  formula: {
+    label: '수식', title: '수식형',
+    desc: '입력칸과 계산식을 직접 만들어요.',
+    example: '예) 고형분% = 건조 후 ÷ 건조 전 × 100',
+  },
+  blend: {
+    label: '배합', title: '배합형',
+    desc: '원료별 함량(%)을 등록해 두고 투입량으로 배합 전체 함량을 계산해요.',
+    example: '예) 바인더 45% 10kg + 물 0% 5kg → 30%',
+  },
+};
+
+function seedCalcs() {
+  const t = Date.now();
+  return [
+    {
+      id: uid(), type: 'convert', name: '원단 길이-무게 변환기', desc: '', decimals: 2, createdAt: t,
+      labelA: '길이', unitA: 'm', labelB: '무게', unitB: 'g',
+      items: [{ id: uid(), name: '원단 A', factor: 10 }, { id: uid(), name: '원단 B', factor: 12.5 }],
+    },
+    {
+      id: uid(), type: 'formula', name: '고형분 계산기', desc: '건조법', decimals: 2, createdAt: t + 1,
+      inputs: [
+        { id: uid(), key: 'A', label: '건조 전 무게', unit: 'g' },
+        { id: uid(), key: 'B', label: '건조 후 무게', unit: 'g' },
+      ],
+      outputs: [
+        { id: uid(), key: 'R1', label: '고형분', unit: '%', formula: 'B / A * 100' },
+        { id: uid(), key: 'R2', label: '휘발분', unit: '%', formula: '100 - R1' },
+      ],
+    },
+    {
+      id: uid(), type: 'blend', name: '배합 고형분 계산기', desc: '', decimals: 2, createdAt: t + 2,
+      propName: '고형분', amountUnit: 'kg',
+      materials: [
+        { id: uid(), name: '바인더 (예시)', value: 45 },
+        { id: uid(), name: '안료 페이스트 (예시)', value: 60 },
+        { id: uid(), name: '물', value: 0 },
+      ],
+    },
+  ];
+}
+
+let storageOk = true;
+function loadDb() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (d && Array.isArray(d.calcs)) return { calcs: d.calcs, session: d.session || {}, prefs: d.prefs || {} };
+    }
+  } catch { storageOk = false; }
+  return { calcs: seedCalcs(), session: {}, prefs: {} };
+}
+let db = loadDb();
+function persist() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(db)); storageOk = true; }
+  catch { if (storageOk) toast('이 브라우저에서는 저장이 안 돼요. 백업을 꼭 내보내 주세요.', true); storageOk = false; }
+}
+let persistTimer = 0;
+const persistSoon = () => { clearTimeout(persistTimer); persistTimer = setTimeout(persist, 300); };
+window.addEventListener('pagehide', persist);
+
+const getCalc = (id) => db.calcs.find((c) => c.id === id);
+const keypadOn = () => db.prefs.keypad !== false;
+
+function session(c) {
+  let s = db.session[c.id];
+  if (!s) s = db.session[c.id] = {};
+  if (c.type === 'convert') {
+    if (!c.items.some((i) => i.id === s.itemId)) s.itemId = c.items[0]?.id || null;
+    s.src = s.src === 'b' ? 'b' : 'a';
+    s.a ??= ''; s.b ??= '';
+  } else if (c.type === 'formula') {
+    s.vals ||= {};
+  } else if (c.type === 'blend') {
+    if (!Array.isArray(s.rows) || !s.rows.length) s.rows = [newBlendRow(c)];
+  }
+  return s;
+}
+function newBlendRow(c, matId) {
+  return { id: uid(), mat: matId || c.materials[0]?.id || 'custom', custom: '', amount: '' };
+}
+
+function calcMeta(c) {
+  if (c.type === 'convert') return `${c.unitA || '?'} ↔ ${c.unitB || '?'} · 품목 ${c.items.length}개`;
+  if (c.type === 'formula') return `입력 ${c.inputs.length} · 결과 ${c.outputs.length}`;
+  return `${c.propName || '함량'} · 원료 ${c.materials.length}개`;
+}
+
+/* =========================================================
+   라우터 (hash 기반, file:// 에서도 동작)
+   ========================================================= */
+const navStack = [location.hash || '#/'];
+function go(hash) { if (location.hash === hash) return; navStack.push(hash); location.hash = hash; }
+function replaceRoute(hash) {
+  const same = location.hash === hash;
+  navStack[navStack.length - 1] = hash;
+  if (same) render(); else location.replace(hash);
+}
+function up(parent) {
+  if (navStack.length >= 2 && navStack[navStack.length - 2] === parent) history.back();
+  else replaceRoute(parent);
+}
+window.addEventListener('hashchange', () => {
+  const cur = location.hash || '#/';
+  if (navStack.length >= 2 && navStack[navStack.length - 2] === cur) navStack.pop();
+  else if (navStack[navStack.length - 1] !== cur) navStack.push(cur);
+  render();
+});
+function parseRoute() {
+  const parts = (location.hash.replace(/^#\/?/, '')).split('/').filter(Boolean).map(decodeURIComponent);
+  if (parts[0] === 'calc' && parts[1]) return { name: 'calc', id: parts[1] };
+  if (parts[0] === 'edit' && parts[1]) return { name: 'edit', id: parts[1] };
+  if (parts[0] === 'new' && parts[1]) return { name: 'new', type: parts[1] };
+  return { name: 'home' };
+}
+
+/* =========================================================
+   공통 UI: 토스트 / 시트 / 확인창
+   ========================================================= */
+let toastTimer = 0;
+function toast(msg, isErr = false) {
+  let t = document.querySelector('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.toggle('err', !!isErr);
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), isErr ? 3200 : 1800);
+}
+
+let sheet = null;
+function openSheet({ title, html = '', actions = [], onMount }) {
+  closeSheet(false);
+  const lastFocus = document.activeElement;
+  const wrap = document.createElement('div');
+  wrap.className = 'overlay';
+  wrap.innerHTML = `
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+      <div class="sheet-head"><h3>${esc(title)}</h3><button class="icon-btn" data-close aria-label="닫기">${I.x}</button></div>
+      <div class="sheet-body">${html}</div>
+      ${actions.length ? `<div class="sheet-actions">${actions.map((a, i) => `<button class="btn ${a.kind || ''}" data-ai="${i}">${esc(a.label)}</button>`).join('')}</div>` : ''}
+    </div>`;
+  const run = (a) => { const r = a.onClick ? a.onClick(wrap) : undefined; if (r !== false) closeSheet(); };
+  wrap.addEventListener('click', (e) => {
+    if (e.target === wrap || e.target.closest('[data-close]')) return closeSheet();
+    const b = e.target.closest('[data-ai]');
+    if (b) run(actions[+b.dataset.ai]);
+  });
+  wrap.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.matches('input')) {
+      const primary = actions.find((a) => (a.kind || '').includes('primary'));
+      if (primary) { e.preventDefault(); run(primary); }
+    }
+  });
+  document.body.appendChild(wrap);
+  sheet = { el: wrap, lastFocus };
+  onMount?.(wrap);
+  if (!wrap.contains(document.activeElement)) (wrap.querySelector('input, textarea, select') || wrap.querySelector('[data-ai], .menu button') || wrap.querySelector('[data-close]'))?.focus();
+  return wrap;
+}
+function closeSheet(restore = true) {
+  if (!sheet) return;
+  const { el, lastFocus } = sheet;
+  sheet = null;
+  el.remove();
+  if (restore && lastFocus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
+}
+function confirmDialog({ title, message, ok = '확인', danger = false }) {
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = (v) => { if (!done) { done = true; resolve(v); } };
+    const el = openSheet({
+      title, html: `<p>${esc(message)}</p>`,
+      actions: [
+        { label: '취소', onClick: () => finish(false) },
+        { label: ok, kind: danger ? 'danger solid' : 'primary', onClick: () => finish(true) },
+      ],
+    });
+    new MutationObserver((_, obs) => { if (!document.contains(el)) { obs.disconnect(); finish(false); } }).observe(document.body, { childList: true });
+  });
+}
+function menuSheet(title, items) {
+  const html = `<div class="menu">${items.map((it, i) => it === '-' ? '<hr>' : `<button data-mi="${i}" class="${it.danger ? 'danger' : ''}">${it.icon || ''}<span>${esc(it.label)}</span></button>`).join('')}</div>`;
+  openSheet({
+    title, html,
+    onMount: (el) => el.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-mi]');
+      if (!b) return;
+      closeSheet(false);
+      items[+b.dataset.mi].onClick();
+    }),
+  });
+}
+
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); }
+  catch {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch { /* 무시 */ }
+    ta.remove();
+  }
+  toast(`복사했어요: ${text}`);
+}
+
+/* =========================================================
+   렌더 진입점
+   ========================================================= */
+const $app = document.getElementById('app');
+let currentView = '';
+let calcUI = null;   // { id, activeId }
+let editor = null;   // { key, draft, isNew, dirty, focusNew }
+
+function render() {
+  closeSheet(false);
+  const r = parseRoute();
+  const viewKey = location.hash;
+  const changed = viewKey !== currentView;
+  currentView = viewKey;
+  if (r.name === 'calc') {
+    const c = getCalc(r.id);
+    if (!c) return replaceRoute('#/');
+    if (!calcUI || calcUI.id !== c.id) calcUI = { id: c.id, activeId: null };
+    renderCalc(c);
+  } else if (r.name === 'edit' || r.name === 'new') {
+    if (!editor || editor.key !== viewKey) {
+      if (r.name === 'edit') {
+        const c = getCalc(r.id);
+        if (!c) return replaceRoute('#/');
+        editor = { key: viewKey, draft: toDraft(c), isNew: false, dirty: false };
+      } else {
+        if (!TYPES[r.type]) return replaceRoute('#/');
+        editor = { key: viewKey, draft: blankDraft(r.type), isNew: true, dirty: false };
+      }
+    }
+    renderEditor();
+  } else {
+    renderHome();
+  }
+  if (changed) window.scrollTo(0, 0);
+}
+
+/* =========================================================
+   메인 화면
+   ========================================================= */
+function renderHome() {
+  editor = null;
+  const cards = db.calcs.map((c) => `
+    <article class="card">
+      <button class="card-open" data-act="open" data-id="${c.id}" aria-label="${esc(c.name)} 열기"></button>
+      <div class="card-top">
+        <span class="badge t-${c.type}">${I['t_' + c.type]}${TYPES[c.type].label}</span>
+        <button class="icon-btn" data-act="card-menu" data-id="${c.id}" aria-label="${esc(c.name)} 메뉴">${I.more}</button>
+      </div>
+      <h2 class="card-name">${esc(c.name)}</h2>
+      ${c.desc ? `<div class="card-meta" style="margin-top:0">${esc(c.desc)}</div>` : ''}
+      <div class="card-meta">${esc(calcMeta(c))}</div>
+    </article>`).join('');
+  $app.innerHTML = `
+    <div class="shell wide">
+      <header class="topbar">
+        <div class="brand">${LOGO}<h1>맞춤 계산기</h1></div>
+        <button class="icon-btn" data-act="home-menu" aria-label="메뉴">${I.more}</button>
+      </header>
+      <p class="home-sub">사용할 계산기를 고르세요. 새 계산기도 직접 만들 수 있어요.</p>
+      <div class="grid">
+        ${cards}
+        <button class="card add" data-act="new">${I.plus}<span>새 계산기</span></button>
+      </div>
+      ${db.calcs.length ? '' : '<p class="empty">아직 계산기가 없어요. “새 계산기”를 눌러 시작하세요.</p>'}
+    </div>`;
+}
+
+function openTypePicker() {
+  const html = `<div class="type-list">${Object.entries(TYPES).map(([k, t]) => `
+    <button class="type-opt" data-type="${k}">
+      <span class="type-ico t-${k}">${I['t_' + k]}</span>
+      <span><b>${t.title}</b><span>${t.desc}</span><small>${t.example}</small></span>
+    </button>`).join('')}</div>`;
+  openSheet({
+    title: '어떤 계산기를 만들까요?', html,
+    onMount: (el) => el.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-type]');
+      if (!b) return;
+      closeSheet(false);
+      go('#/new/' + b.dataset.type);
+    }),
+  });
+}
+
+function cardMenu(id) {
+  const c = getCalc(id);
+  if (!c) return;
+  const idx = db.calcs.indexOf(c);
+  const move = (d) => {
+    const j = idx + d;
+    if (j < 0 || j >= db.calcs.length) return;
+    [db.calcs[idx], db.calcs[j]] = [db.calcs[j], db.calcs[idx]];
+    persist(); render();
+  };
+  menuSheet(c.name, [
+    { label: '편집', icon: I.edit, onClick: () => go('#/edit/' + c.id) },
+    { label: '복제', icon: I.copy, onClick: () => { duplicateCalc(c); render(); } },
+    ...(idx > 0 ? [{ label: '앞으로 이동', icon: I.up, onClick: () => move(-1) }] : []),
+    ...(idx < db.calcs.length - 1 ? [{ label: '뒤로 이동', icon: I.down, onClick: () => move(1) }] : []),
+    '-',
+    { label: '삭제', icon: I.trash, danger: true, onClick: () => deleteCalc(c) },
+  ]);
+}
+function duplicateCalc(c) {
+  const copy = clone(c);
+  copy.id = uid();
+  copy.name = c.name + ' (복사본)';
+  copy.createdAt = Date.now();
+  for (const list of ['items', 'materials', 'inputs', 'outputs']) if (copy[list]) copy[list].forEach((x) => { x.id = uid(); });
+  db.calcs.splice(db.calcs.indexOf(c) + 1, 0, copy);
+  persist();
+  toast('복제했어요');
+  return copy;
+}
+async function deleteCalc(c, after) {
+  const ok = await confirmDialog({ title: '계산기 삭제', message: `“${c.name}” 계산기와 등록된 베이스 데이터를 삭제할까요? 되돌릴 수 없어요.`, ok: '삭제', danger: true });
+  if (!ok) return;
+  db.calcs = db.calcs.filter((x) => x !== c);
+  delete db.session[c.id];
+  persist();
+  toast('삭제했어요');
+  if (after) after(); else render();
+}
+
+function homeMenu() {
+  menuSheet('메뉴', [
+    { label: '백업 파일로 내보내기', icon: I.download, onClick: exportBackup },
+    { label: '백업 파일 불러오기', icon: I.upload, onClick: () => document.getElementById('importFile').click() },
+    { label: '예제 계산기 추가', icon: I.sparkle, onClick: () => { db.calcs.push(...seedCalcs()); persist(); render(); toast('예제 계산기 3개를 추가했어요'); } },
+    '-',
+    { label: '설치 · 사용 안내', icon: I.info, onClick: showInfo },
+  ]);
+}
+function exportBackup() {
+  const data = { app: 'custom-calculator', version: 1, exportedAt: new Date().toISOString(), calcs: db.calcs };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const d = new Date();
+  const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `계산기-백업-${stamp}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast('백업 파일을 내보냈어요');
+}
+function validCalc(c) {
+  if (!c || typeof c !== 'object' || !TYPES[c.type] || typeof c.name !== 'string') return false;
+  if (c.type === 'convert') return Array.isArray(c.items);
+  if (c.type === 'formula') return Array.isArray(c.inputs) && Array.isArray(c.outputs);
+  return Array.isArray(c.materials);
+}
+document.getElementById('importFile').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  let calcs;
+  try {
+    const data = JSON.parse(await file.text());
+    calcs = (Array.isArray(data) ? data : data.calcs || []).filter(validCalc);
+  } catch { calcs = null; }
+  if (!calcs || !calcs.length) return toast('불러올 수 있는 계산기가 없는 파일이에요', true);
+  const fresh = () => calcs.map((c) => {
+    const x = clone(c);
+    if (db.calcs.some((y) => y.id === x.id)) x.id = uid();
+    return x;
+  });
+  openSheet({
+    title: '백업 불러오기',
+    html: `<p>계산기 ${calcs.length}개를 찾았어요. 어떻게 불러올까요?</p>`,
+    actions: [
+      { label: '전체 바꾸기', kind: 'danger', onClick: () => { db.calcs = clone(calcs); db.session = {}; persist(); render(); toast('백업으로 바꿨어요'); } },
+      { label: '기존에 추가', kind: 'primary', onClick: () => { db.calcs.push(...fresh()); persist(); render(); toast(`${calcs.length}개를 추가했어요`); } },
+    ],
+  });
+});
+function showInfo() {
+  const local = location.protocol === 'file:';
+  openSheet({
+    title: '설치 · 사용 안내',
+    html: `<div class="info">
+      <h4>PC에 설치하기 (Windows)</h4>
+      <ol>
+        <li>계산기 폴더를 원하는 위치(예: 문서)에 둡니다.</li>
+        <li>폴더 안의 <b>설치.bat</b>을 더블클릭하면 바탕화면과 시작 메뉴에 “맞춤 계산기” 바로가기가 생깁니다.</li>
+        <li>바로가기를 누르면 주소창 없는 앱 창으로 열립니다. 인터넷 연결이 없어도 됩니다.</li>
+      </ol>
+      <h4>웹 주소에서 앱으로 설치 (PC · 휴대폰)</h4>
+      <ul>
+        <li>크롬/엣지: 주소창 오른쪽의 <b>앱 설치</b> 아이콘 또는 메뉴 → “앱 설치”.</li>
+        <li>아이폰 사파리: 공유 → “홈 화면에 추가”.</li>
+      </ul>
+      <h4>데이터 보관</h4>
+      <ul>
+        <li>등록한 계산기·베이스 데이터는 이 브라우저에 자동 저장됩니다.</li>
+        <li>다른 PC로 옮기거나 브라우저 데이터를 지울 때는 메뉴 → <b>백업 파일로 내보내기</b> 후 불러오세요.</li>
+      </ul>
+      <h4>입력 팁</h4>
+      <ul>
+        <li>입력칸에 <b>10+5</b>, <b>3×12.5</b> 같은 식을 바로 써도 됩니다. Enter 또는 = 로 계산 결과로 바뀝니다.</li>
+        <li>결과 화면의 복사 버튼을 누르면 숫자만 복사돼 엑셀에 붙여넣기 좋습니다.</li>
+      </ul>
+      ${local ? '<p class="help" style="margin-top:12px">현재 파일로 직접 열려 있어요 (오프라인 모드).</p>' : ''}
+    </div>`,
+  });
+}
+
+/* =========================================================
+   계산기 화면
+   ========================================================= */
+function renderCalc(c) {
+  const s = session(c);
+  const kp = keypadOn();
+  const editLabel = c.type === 'formula' ? '계산기 편집' : '베이스 데이터 · 편집';
+  $app.innerHTML = `
+    <div class="shell">
+      <header class="topbar">
+        <button class="icon-btn" data-act="up-home" aria-label="뒤로">${I.back}</button>
+        <h1>${esc(c.name)}</h1>
+        <button class="icon-btn" data-act="toggle-keypad" aria-pressed="${kp}" aria-label="키패드 ${kp ? '숨기기' : '보이기'}" title="키패드 ${kp ? '숨기기' : '보이기'}">${I.keypad}</button>
+        <button class="icon-btn" data-act="edit-calc" aria-label="${editLabel}" title="${editLabel}">${I.edit}</button>
+      </header>
+      <section class="device" aria-label="${esc(c.name)}">
+        <div class="lcd" id="lcd" aria-live="polite"></div>
+        <div class="panel" id="panel">${calcPanel(c, s)}</div>
+        ${kp ? keypadHTML() : ''}
+      </section>
+      ${kp ? '' : '<p class="key-hint">입력칸에 10+5 같은 식을 써도 계산돼요.</p>'}
+    </div>`;
+  applyInputMode();
+  updateCalc(c);
+  // 첫 진입 시 커서 위치
+  const target = calcUI.activeId && document.getElementById(calcUI.activeId);
+  setActive(target || firstCalcInput());
+  if (!isTouch() && document.activeElement === document.body) getActiveInput()?.focus({ preventScroll: true });
+}
+function applyInputMode() {
+  const none = keypadOn() && isTouch();
+  $app.querySelectorAll('.panel input[data-calc]').forEach((el) => el.setAttribute('inputmode', none ? 'none' : 'decimal'));
+}
+function firstCalcInput() {
+  const els = [...$app.querySelectorAll('.panel input[data-calc]')];
+  return els.find((e) => !e.value) || els[0] || null;
+}
+function getActiveInput() {
+  const el = calcUI && calcUI.activeId && document.getElementById(calcUI.activeId);
+  return el && document.contains(el) ? el : firstCalcInput();
+}
+function setActive(el) {
+  $app.querySelectorAll('.input-wrap.active').forEach((w) => w.classList.remove('active'));
+  if (!el) return;
+  calcUI.activeId = el.id;
+  el.closest('.input-wrap')?.classList.add('active');
+}
+
+function keypadHTML() {
+  const k = (v, label, cls = '', aria = '') => `<button class="key ${cls}" data-key="${v}" ${aria ? `aria-label="${aria}"` : ''}>${label}</button>`;
+  return `<div class="keypad-wrap"><div class="keypad" role="group" aria-label="키패드">
+    ${k('AC', 'AC', 'fn', '전체 지우기')}${k('C', 'C', 'fn', '입력칸 지우기')}${k('back', I.backspace, 'fn', '한 글자 지우기')}${k('÷', '÷', 'op', '나누기')}
+    ${k('7', '7')}${k('8', '8')}${k('9', '9')}${k('×', '×', 'op', '곱하기')}
+    ${k('4', '4')}${k('5', '5')}${k('6', '6')}${k('−', '−', 'op', '빼기')}
+    ${k('1', '1')}${k('2', '2')}${k('3', '3')}${k('+', '+', 'op', '더하기')}
+    ${k('0', '0', 'wide')}${k('.', '.', '', '소수점')}${k('=', '=', 'op', '계산')}
+  </div></div>`;
+}
+
+function inputField(id, value, unit, attrs = '', sm = false) {
+  return `<div class="input-wrap${sm ? ' sm' : ''}"><input id="${id}" type="text" data-calc autocomplete="off" spellcheck="false" placeholder="0" value="${esc(value)}" ${attrs}>${unit ? `<span class="unit">${esc(unit)}</span>` : ''}</div>`;
+}
+
+function calcPanel(c, s) {
+  if (c.type === 'convert') {
+    if (!c.items.length) {
+      return `<div class="notice"><span>아직 등록된 품목이 없어요.<br>품목별 기준값(1 ${esc(c.unitA)} 당 ${esc(c.unitB)})을 먼저 등록하세요.</span>
+        <button class="btn primary sm" data-act="quick-add">${I.plus}품목 등록</button></div>`;
+    }
+    const many = c.items.length > 8;
+    return `
+      <div>
+        <div class="panel-head"><h2 id="itemsLabel">품목</h2><button class="link-btn" data-act="edit-calc">베이스 데이터 관리</button></div>
+        ${many ? '<input class="search" type="search" placeholder="품목 검색" data-act="item-search" aria-label="품목 검색" style="margin:6px 0 8px">' : ''}
+        <div class="chips" role="radiogroup" aria-labelledby="itemsLabel" style="margin-top:${many ? 0 : 6}px">
+          ${c.items.map((it) => `<button class="chip" role="radio" data-act="pick-item" data-id="${it.id}" aria-checked="${it.id === s.itemId}" data-name="${esc(it.name.toLowerCase())}"><span>${esc(it.name)}</span></button>`).join('')}
+          <button class="chip add" data-act="quick-add" aria-label="품목 추가">${I.plus}<span>추가</span></button>
+        </div>
+      </div>
+      <div>
+        <div class="field-label"><span>${esc(c.labelA || '입력')}</span></div>
+        ${inputField('cv-a', s.a, c.unitA, `data-side="a" aria-label="${esc(c.labelA)} (${esc(c.unitA)})"`)}
+      </div>
+      <div class="dir${s.src === 'b' ? ' up' : ''}" id="cv-dir" aria-hidden="true">${I.arrow}</div>
+      <div>
+        <div class="field-label"><span>${esc(c.labelB || '환산')}</span></div>
+        ${inputField('cv-b', s.b, c.unitB, `data-side="b" aria-label="${esc(c.labelB)} (${esc(c.unitB)})"`)}
+      </div>`;
+  }
+  if (c.type === 'formula') {
+    if (!c.inputs.length) return `<div class="notice"><span>입력 항목이 없어요.</span><button class="btn primary sm" data-act="edit-calc">${I.edit}계산기 편집</button></div>`;
+    return `
+      <div class="panel-head"><h2>입력</h2><button class="link-btn" data-act="clear-all">모두 지우기</button></div>
+      ${c.inputs.map((inp) => `
+        <div>
+          <div class="field-label"><span>${esc(inp.label || inp.key)}</span><span class="key-tag">${esc(inp.key)}</span></div>
+          ${inputField('fx-' + inp.id, s.vals[inp.id] || '', inp.unit, `data-inp="${inp.id}" aria-label="${esc(inp.label || inp.key)}"`)}
+        </div>`).join('')}`;
+  }
+  // blend
+  const opts = (row) => `
+    ${c.materials.map((m) => `<option value="${m.id}" ${row.mat === m.id ? 'selected' : ''}>${esc(m.name)} (${fmt(numOrNaN(m.value), 4)}%)</option>`).join('')}
+    <option value="custom" ${row.mat === 'custom' ? 'selected' : ''}>직접 입력</option>
+    <option value="__new">+ 새 원료 등록…</option>`;
+  return `
+    <div class="panel-head"><h2>원료 · 투입량</h2><button class="link-btn" data-act="edit-calc">베이스 데이터 관리</button></div>
+    <div class="brows" id="brows">
+      ${s.rows.map((row, i) => `
+        <div class="brow${row.mat === 'custom' ? ' has-custom' : ''}" data-row="${row.id}">
+          <select class="select" data-act="row-mat" data-row="${row.id}" aria-label="${i + 1}번 원료">${opts(row)}</select>
+          <button class="mini-btn del" data-act="row-del" data-row="${row.id}" aria-label="${i + 1}번 행 삭제">${I.x}</button>
+          ${row.mat === 'custom' ? `<div class="custom">${inputField('bl-c-' + row.id, row.custom, '%', `data-row="${row.id}" data-bfield="custom" aria-label="${i + 1}번 ${esc(c.propName)} %"`, true)}</div>` : ''}
+          <div class="amount">${inputField('bl-a-' + row.id, row.amount, c.amountUnit, `data-row="${row.id}" data-bfield="amount" aria-label="${i + 1}번 투입량"`, true)}</div>
+          <div class="brow-meta" id="bm-${row.id}"></div>
+        </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn sm" data-act="row-add" style="flex:1">${I.plus}원료 추가</button>
+      <button class="btn sm ghost" data-act="clear-all">모두 지우기</button>
+    </div>`;
+}
+
+/** 입력값이 바뀔 때마다 결과(LCD)와 연동 칸만 갱신 (입력칸은 다시 그리지 않음 → 커서 유지) */
+function updateCalc(c) {
+  const s = session(c);
+  const d = c.decimals ?? 2;
+  const lcd = document.getElementById('lcd');
+  if (!lcd) return;
+  const copyBtn = (val) => (Number.isFinite(val) ? `<button class="lcd-copy" data-act="copy" data-val="${plain(val, d)}" aria-label="결과 복사" title="결과 복사">${I.copy}</button>` : '');
+  const main = (val, unit, state) => {
+    if (state === 'err') return `<div class="lcd-main err"><span class="num">입력 오류</span></div>`;
+    const ok = Number.isFinite(val);
+    return `<div class="lcd-main${ok && state !== 'dim' ? '' : ' dim'}"><span class="num">${ok ? fmt(val, d) : (state === 'na' ? '—' : '0')}</span>${unit ? `<span class="unit">${esc(unit)}</span>` : ''}</div>`;
+  };
+
+  if (c.type === 'convert') {
+    const item = c.items.find((i) => i.id === s.itemId);
+    const f = item ? numOrNaN(item.factor) : NaN;
+    const srcUnit = s.src === 'a' ? c.unitA : c.unitB;
+    const dstUnit = s.src === 'a' ? c.unitB : c.unitA;
+    const v = evalInput(s.src === 'a' ? s.a : s.b);
+    const out = v.ok ? (s.src === 'a' ? v.value * f : v.value / f) : NaN;
+    const other = document.getElementById(s.src === 'a' ? 'cv-b' : 'cv-a');
+    if (other) other.value = v.ok && Number.isFinite(out) ? fmt(out, d) : '';
+    const srcEl = document.getElementById(s.src === 'a' ? 'cv-a' : 'cv-b');
+    srcEl?.closest('.input-wrap').classList.toggle('bad', !!v.error);
+    document.getElementById('cv-dir')?.classList.toggle('up', s.src === 'b');
+    lcd.innerHTML = `
+      <div class="lcd-top"><span>${item ? esc(item.name) : '품목 없음'}</span><span>${item ? `1 ${esc(c.unitA)} = ${fmt(f, 6)} ${esc(c.unitB)}` : ''}</span></div>
+      <div class="lcd-expr">${v.ok ? `${fmt(v.value, 6)} ${esc(srcUnit)} =` : ''}</div>
+      ${v.error ? main(NaN, '', 'err') : main(out, dstUnit, v.ok ? (Number.isFinite(out) ? '' : 'na') : 'dim')}
+      ${copyBtn(out)}`;
+    return;
+  }
+
+  if (c.type === 'formula') {
+    const env = Object.create(null);
+    let anyErr = false, anyEmpty = false;
+    for (const inp of c.inputs) {
+      const r = evalInput(s.vals[inp.id] || '');
+      document.getElementById('fx-' + inp.id)?.closest('.input-wrap').classList.toggle('bad', !!r.error);
+      if (r.error) anyErr = true;
+      if (r.empty) anyEmpty = true;
+      env[inp.key] = r.ok ? r.value : NaN;
+    }
+    const results = c.outputs.map((o) => {
+      let val = NaN;
+      const comp = compile(o.formula);
+      if (comp.ok) { try { val = evalAst(comp.ast, env); } catch { val = NaN; } }
+      env[o.key] = val;
+      return { o, val };
+    });
+    const [first, ...rest] = results;
+    const state = anyErr ? 'err' : anyEmpty ? 'dim' : (first && !Number.isFinite(first.val) ? 'na' : '');
+    lcd.innerHTML = first ? `
+      <div class="lcd-top"><span>${esc(first.o.label || first.o.key)}</span><span>${anyEmpty ? '값을 입력하세요' : ''}</span></div>
+      <div class="lcd-expr"></div>
+      ${main(anyEmpty ? NaN : first.val, first.o.unit, state)}
+      ${rest.length ? `<div class="lcd-rows">${rest.map((r) => `<div class="lcd-row"><span>${esc(r.o.label || r.o.key)}</span><b>${anyEmpty ? '—' : fmt(r.val, d)} ${esc(r.o.unit || '')}</b></div>`).join('')}</div>` : ''}
+      ${anyEmpty || anyErr ? '' : copyBtn(first.val)}`
+      : '<div class="lcd-top"><span>결과 항목이 없어요</span></div><div class="lcd-expr"></div>' + main(NaN, '', 'dim');
+    return;
+  }
+
+  // blend
+  let total = 0, part = 0, complete = 0, partial = 0, anyErr = false;
+  for (const row of s.rows) {
+    const mat = c.materials.find((m) => m.id === row.mat);
+    const pv = row.mat === 'custom' ? evalInput(row.custom) : { ok: !!mat && Number.isFinite(numOrNaN(mat.value)), value: mat ? numOrNaN(mat.value) : NaN };
+    const av = evalInput(row.amount);
+    document.getElementById('bl-a-' + row.id)?.closest('.input-wrap').classList.toggle('bad', !!av.error);
+    document.getElementById('bl-c-' + row.id)?.closest('.input-wrap').classList.toggle('bad', !!pv.error);
+    if (av.error || pv.error) anyErr = true;
+    const meta = document.getElementById('bm-' + row.id);
+    if (av.ok && pv.ok) {
+      const w = av.value * pv.value / 100;
+      total += av.value; part += w; complete++;
+      if (meta) meta.textContent = `${c.propName} ${fmt(pv.value, 4)}% → ${fmt(w, d)} ${c.amountUnit}`;
+    } else {
+      if (!av.empty || (row.mat === 'custom' && row.custom)) partial++;
+      if (meta) meta.textContent = pv.ok ? `${c.propName} ${fmt(pv.value, 4)}%` : (row.mat === 'custom' ? `${c.propName} %를 입력하세요` : '');
+    }
+  }
+  const pct = total > 0 ? part / total * 100 : NaN;
+  const state = anyErr ? 'err' : complete ? (Number.isFinite(pct) ? '' : 'na') : 'dim';
+  lcd.innerHTML = `
+    <div class="lcd-top"><span>배합 ${esc(c.propName)}</span><span>${partial ? `미완성 ${partial}행 제외` : `${complete}종 배합`}</span></div>
+    <div class="lcd-expr"></div>
+    ${main(complete ? pct : NaN, '%', state)}
+    <div class="lcd-rows">
+      <div class="lcd-row"><span>총 투입량</span><b>${complete ? fmt(total, d) : '—'} ${esc(c.amountUnit)}</b></div>
+      <div class="lcd-row"><span>${esc(c.propName)}량</span><b>${complete ? fmt(part, d) : '—'} ${esc(c.amountUnit)}</b></div>
+    </div>
+    ${complete && !anyErr ? copyBtn(pct) : ''}`;
+}
+
+/** 계산기 입력칸의 값이 바뀌었을 때 세션에 반영 */
+function onCalcInput(c, el) {
+  const s = session(c);
+  if (c.type === 'convert') {
+    s.src = el.dataset.side;
+    s[s.src] = el.value;
+  } else if (c.type === 'formula') {
+    s.vals[el.dataset.inp] = el.value;
+  } else {
+    const row = s.rows.find((r) => r.id === el.dataset.row);
+    if (row) row[el.dataset.bfield] = el.value;
+  }
+  updateCalc(c);
+  persistSoon();
+}
+/** 식(10+5)을 결과 숫자로 확정 */
+function commitExpr(c, el) {
+  const r = evalInput(el.value);
+  if (r.ok && r.expr) {
+    el.value = plain(r.value, Math.max(6, c.decimals ?? 2));
+    onCalcInput(c, el);
+  }
+}
+function nextCalcInput(el) {
+  const els = [...$app.querySelectorAll('.panel input[data-calc]')];
+  const i = els.indexOf(el);
+  return els[i + 1] || null;
+}
+
+function keypadPress(c, key) {
+  if (key === 'AC') return clearAll(c);
+  const el = getActiveInput();
+  if (!el) return;
+  if (document.activeElement !== el) el.focus({ preventScroll: true });
+  setActive(el);
+  const v = el.value;
+  let s = el.selectionStart ?? v.length, e = el.selectionEnd ?? v.length;
+  if (key === '=') { commitExpr(c, el); return; }
+  let nv = v, caret;
+  if (key === 'C') { nv = ''; caret = 0; }
+  else if (key === 'back') {
+    if (s !== e) { nv = v.slice(0, s) + v.slice(e); caret = s; }
+    else if (s > 0) { nv = v.slice(0, s - 1) + v.slice(s); caret = s - 1; }
+    else return;
+  } else {
+    // 결과값(다른 칸에 자동 입력된 쉼표 숫자)을 이어서 편집할 때 쉼표 제거
+    if (/,/.test(v)) { const raw = v.replace(/,/g, ''); s = e = raw.length; nv = raw; }
+    nv = nv.slice(0, s) + key + nv.slice(e);
+    caret = s + key.length;
+  }
+  el.value = nv;
+  try { el.setSelectionRange(caret, caret); } catch { /* 무시 */ }
+  onCalcInput(c, el);
+}
+function clearAll(c) {
+  const s = session(c);
+  if (c.type === 'convert') { s.a = ''; s.b = ''; s.src = 'a'; }
+  else if (c.type === 'formula') s.vals = {};
+  else s.rows = [newBlendRow(c)];
+  persist();
+  calcUI.activeId = null;
+  renderCalc(c);
+}
+
+function quickAddItem(c, onAdded) {
+  const isBlend = c.type === 'blend';
+  const html = isBlend
+    ? `<label class="f"><span>원료 이름</span><input class="txt" id="qa-name" placeholder="예: 바인더 X"></label>
+       <label class="f"><span>${esc(c.propName)} (%)</span><div class="input-wrap sm"><input id="qa-val" inputmode="decimal" placeholder="0"><span class="unit">%</span></div></label>`
+    : `<label class="f"><span>품목 이름</span><input class="txt" id="qa-name" placeholder="예: 원단 C"></label>
+       <label class="f"><span>기준값: 1 ${esc(c.unitA)} 당 ${esc(c.unitB)}</span><div class="input-wrap sm"><input id="qa-val" inputmode="decimal" placeholder="0"><span class="unit">${esc(c.unitB)}/${esc(c.unitA)}</span></div></label>
+       <p class="help">예: 1 ${esc(c.unitA)} = 10 ${esc(c.unitB)} 이면 10 입력. 나눗셈 식(1000/80)도 가능해요.</p>`;
+  openSheet({
+    title: isBlend ? '새 원료 등록' : '새 품목 등록', html,
+    actions: [
+      { label: '취소' },
+      {
+        label: '등록', kind: 'primary', onClick: (el) => {
+          const nameEl = el.querySelector('#qa-name'), valEl = el.querySelector('#qa-val');
+          const name = nameEl.value.trim();
+          const v = evalInput(valEl.value);
+          nameEl.classList.toggle('invalid', !name);
+          valEl.closest('.input-wrap').classList.toggle('invalid', !v.ok);
+          if (!name) { nameEl.focus(); return false; }
+          if (!v.ok) { valEl.focus(); return false; }
+          const item = { id: uid(), name, [isBlend ? 'value' : 'factor']: v.value };
+          (isBlend ? c.materials : c.items).push(item);
+          c.updatedAt = Date.now();
+          onAdded(item);
+          persist();
+          toast(`“${name}” 등록했어요`);
+        },
+      },
+    ],
+  });
+}
+
+/* =========================================================
+   편집 화면 (계산기 만들기/수정)
+   ========================================================= */
+function toDraft(c) {
+  const d = clone(c);
+  (d.items || []).forEach((x) => { x.factor = String(x.factor ?? ''); });
+  (d.materials || []).forEach((x) => { x.value = String(x.value ?? ''); });
+  return d;
+}
+function blankDraft(type) {
+  const base = { id: uid(), type, name: '', desc: '', decimals: 2 };
+  if (type === 'convert') return { ...base, labelA: '길이', unitA: 'm', labelB: '무게', unitB: 'g', items: [{ id: uid(), name: '', factor: '' }] };
+  if (type === 'formula') return {
+    ...base,
+    inputs: [{ id: uid(), key: 'A', label: '', unit: '' }, { id: uid(), key: 'B', label: '', unit: '' }],
+    outputs: [{ id: uid(), key: 'R1', label: '결과', unit: '', formula: '' }],
+  };
+  return { ...base, propName: '고형분', amountUnit: 'kg', materials: [{ id: uid(), name: '', value: '' }] };
+}
+function nextKey(d, prefix) {
+  const used = new Set([...d.inputs, ...d.outputs].map((x) => x.key));
+  if (prefix === 'in') {
+    for (const ch of 'ABCDEFGHIJKLMNOPQSTUVWXYZ') if (!used.has(ch)) return ch;
+    let i = 1; while (used.has('X' + i)) i++; return 'X' + i;
+  }
+  let i = 1; while (used.has('R' + i)) i++; return 'R' + i;
+}
+
+function getPath(obj, path) { return path.split('.').reduce((o, k) => (o == null ? o : o[k]), obj); }
+function setPath(obj, path, val) {
+  const ks = path.split('.');
+  const last = ks.pop();
+  const t = ks.reduce((o, k) => o[k], obj);
+  t[last] = val;
+}
+const bindAttr = (path, extra = '') => `data-bind="${path}" value="${esc(getPath(editor.draft, path))}" ${extra}`;
+
+const rowTools = (list, i, n) => `
+  <div class="tools">
+    <button type="button" class="mini-btn" data-act="row-up" data-list="${list}" data-i="${i}" aria-label="위로" ${i === 0 ? 'disabled' : ''}>${I.up}</button>
+    <button type="button" class="mini-btn" data-act="row-down" data-list="${list}" data-i="${i}" aria-label="아래로" ${i === n - 1 ? 'disabled' : ''}>${I.down}</button>
+    <button type="button" class="mini-btn del" data-act="row-del" data-list="${list}" data-i="${i}" aria-label="삭제">${I.trash}</button>
+  </div>`;
+
+function renderEditor() {
+  const d = editor.draft;
+  const t = TYPES[d.type];
+  $app.innerHTML = `
+    <div class="shell">
+      <header class="topbar">
+        <button class="icon-btn" data-act="ed-cancel" aria-label="뒤로">${I.back}</button>
+        <h1>${editor.isNew ? '새 계산기' : '계산기 편집'}</h1>
+        <button class="btn primary sm" data-act="ed-save">저장</button>
+      </header>
+      <div class="type-line"><span class="badge t-${d.type}">${I['t_' + d.type]}${t.title}</span><span>${t.desc}</span></div>
+      <form id="edForm" novalidate onsubmit="return false">
+        <section class="sec">
+          <h2>기본 정보</h2>
+          <label class="f"><span>계산기 이름</span><input class="txt" ${bindAttr('name', `placeholder="${d.type === 'convert' ? '예: 원단 길이-무게 변환기' : d.type === 'formula' ? '예: 고형분 계산기' : '예: 배합 고형분 계산기'}" maxlength="40"`)}></label>
+          <label class="f"><span>설명 (선택)</span><input class="txt" ${bindAttr('desc', 'placeholder="메인 화면 카드에 표시돼요" maxlength="60"')}></label>
+          <div class="f">
+            <span>결과 소수점 자리수</span>
+            <div class="stepper-row">
+              <div class="stepper" role="group" aria-label="소수점 자리수">
+                <button type="button" data-act="dec" data-d="-1" aria-label="줄이기">−</button>
+                <output id="decOut">${d.decimals}</output>
+                <button type="button" data-act="dec" data-d="1" aria-label="늘리기">+</button>
+              </div>
+              <span class="preview" id="decPreview">${fmt(1234.56789, d.decimals)}</span>
+            </div>
+          </div>
+        </section>
+        ${d.type === 'convert' ? editorConvert(d) : d.type === 'formula' ? editorFormula(d) : editorBlend(d)}
+        ${editor.isNew ? '' : `
+        <section class="sec">
+          <h2>관리</h2>
+          <div class="danger-zone">
+            <button type="button" class="btn sm" data-act="ed-dup">${I.copy}복제</button>
+            <button type="button" class="btn sm danger" data-act="ed-del">${I.trash}삭제</button>
+          </div>
+        </section>`}
+        <div class="ed-footer"><button type="button" class="btn primary block" data-act="ed-save">저장하고 계산기로</button></div>
+      </form>
+    </div>`;
+  if (d.type === 'formula') refreshFormulaMsgs();
+  if (editor.focusNew) {
+    const el = $app.querySelector(`[data-bind="${editor.focusNew}"]`);
+    editor.focusNew = null;
+    if (el) { el.focus(); el.scrollIntoView({ block: 'center' }); }
+  } else if (editor.isNew && !d.name) {
+    $app.querySelector('[data-bind="name"]')?.focus();
+  }
+}
+
+function editorConvert(d) {
+  return `
+    <section class="sec">
+      <h2>단위</h2>
+      <div class="grid2">
+        <label class="f"><span>입력 항목</span><input class="txt" ${bindAttr('labelA', 'placeholder="길이"')}></label>
+        <label class="f"><span>단위</span><input class="txt" ${bindAttr('unitA', 'placeholder="m" data-unit')}></label>
+        <div class="unit-arrow">양방향 환산</div>
+        <label class="f"><span>환산 항목</span><input class="txt" ${bindAttr('labelB', 'placeholder="무게"')}></label>
+        <label class="f"><span>단위</span><input class="txt" ${bindAttr('unitB', 'placeholder="g" data-unit')}></label>
+      </div>
+    </section>
+    <section class="sec">
+      <div class="sec-head"><h2>베이스 데이터 (품목)</h2><span class="hint" data-unit-hint="head">1 ${esc(d.unitA)} 당 ${esc(d.unitB)}</span></div>
+      <div class="erows">
+        ${d.items.length ? d.items.map((it, i) => `
+          <div class="erow">
+            <input class="txt name-input" ${bindAttr(`items.${i}.name`, 'placeholder="품목명 (예: 원단 A)" aria-label="품목명"')}>
+            <div class="input-wrap sm"><input ${bindAttr(`items.${i}.factor`, 'inputmode="decimal" placeholder="0" aria-label="기준값"')}><span class="unit" data-unit-hint="row">${esc(d.unitB)}/${esc(d.unitA)}</span></div>
+            ${rowTools('items', i, d.items.length)}
+          </div>`).join('') : '<div class="row-empty">등록된 품목이 없어요</div>'}
+      </div>
+      <div class="sec-actions">
+        <button type="button" class="btn sm" data-act="row-add" data-list="items">${I.plus}품목 추가</button>
+        <button type="button" class="btn sm ghost" data-act="paste" data-list="items">${I.clipboard}엑셀에서 붙여넣기</button>
+      </div>
+      <p class="help">기준값은 “1 ${esc(d.unitA)} 당 몇 ${esc(d.unitB)}”인지 입력해요. 1000/80 같은 식도 됩니다.</p>
+    </section>`;
+}
+
+function editorBlend(d) {
+  return `
+    <section class="sec">
+      <h2>설정</h2>
+      <div class="grid2" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+        <label class="f"><span>계산할 성분</span><input class="txt" ${bindAttr('propName', 'placeholder="고형분" data-unit')}></label>
+        <label class="f"><span>투입량 단위</span><input class="txt" ${bindAttr('amountUnit', 'placeholder="kg"')}></label>
+      </div>
+      <p class="help">결과 = Σ(투입량 × 함량%) ÷ Σ투입량</p>
+    </section>
+    <section class="sec">
+      <div class="sec-head"><h2>베이스 데이터 (원료)</h2><span class="hint" data-unit-hint="head">${esc(d.propName)} 함량 %</span></div>
+      <div class="erows">
+        ${d.materials.length ? d.materials.map((m, i) => `
+          <div class="erow">
+            <input class="txt name-input" ${bindAttr(`materials.${i}.name`, 'placeholder="원료명 (예: 바인더 X)" aria-label="원료명"')}>
+            <div class="input-wrap sm"><input ${bindAttr(`materials.${i}.value`, 'inputmode="decimal" placeholder="0" aria-label="함량"')}><span class="unit">%</span></div>
+            ${rowTools('materials', i, d.materials.length)}
+          </div>`).join('') : '<div class="row-empty">등록된 원료가 없어요</div>'}
+      </div>
+      <div class="sec-actions">
+        <button type="button" class="btn sm" data-act="row-add" data-list="materials">${I.plus}원료 추가</button>
+        <button type="button" class="btn sm ghost" data-act="paste" data-list="materials">${I.clipboard}엑셀에서 붙여넣기</button>
+      </div>
+    </section>`;
+}
+
+function editorFormula(d) {
+  return `
+    <section class="sec">
+      <div class="sec-head"><h2>입력 항목</h2><span class="hint">키 · 이름 · 단위</span></div>
+      <div class="erows">
+        ${d.inputs.length ? d.inputs.map((x, i) => `
+          <div class="erow formula-in">
+            <input class="txt key-input" ${bindAttr(`inputs.${i}.key`, 'aria-label="키" maxlength="12" data-key-field')}>
+            <input class="txt label-input" ${bindAttr(`inputs.${i}.label`, 'placeholder="이름 (예: 건조 전 무게)" aria-label="이름"')}>
+            <input class="txt unit-input" ${bindAttr(`inputs.${i}.unit`, 'placeholder="단위" aria-label="단위"')}>
+            ${rowTools('inputs', i, d.inputs.length)}
+          </div>`).join('') : '<div class="row-empty">입력 항목을 추가하세요</div>'}
+      </div>
+      <div class="sec-actions"><button type="button" class="btn sm" data-act="row-add" data-list="inputs">${I.plus}입력 추가</button></div>
+    </section>
+    <section class="sec">
+      <div class="sec-head"><h2>결과 (계산식)</h2><span class="hint">첫 번째 결과가 크게 표시돼요</span></div>
+      <div class="erows">
+        ${d.outputs.length ? d.outputs.map((o, i) => `
+          <div class="erow formula-out">
+            <input class="txt key-input" ${bindAttr(`outputs.${i}.key`, 'aria-label="키" maxlength="12" data-key-field')}>
+            <input class="txt label-input" ${bindAttr(`outputs.${i}.label`, 'placeholder="이름 (예: 고형분)" aria-label="결과 이름"')}>
+            <input class="txt unit-input" ${bindAttr(`outputs.${i}.unit`, 'placeholder="단위" aria-label="단위"')}>
+            ${rowTools('outputs', i, d.outputs.length)}
+            <input class="txt mono full" ${bindAttr(`outputs.${i}.formula`, 'placeholder="계산식 (예: B / A * 100)" aria-label="계산식" spellcheck="false" autocomplete="off" data-formula')}>
+            <div class="vars full" data-vars="${i}"></div>
+            <div class="fmsg full" data-fmsg="${i}"></div>
+          </div>`).join('') : '<div class="row-empty">결과 항목을 추가하세요</div>'}
+      </div>
+      <div class="sec-actions"><button type="button" class="btn sm" data-act="row-add" data-list="outputs">${I.plus}결과 추가</button></div>
+      <p class="help">사용 가능: + − * / ^ ( ) · round(x, 자리수) · min · max · abs · sqrt · 앞의 결과 키(R1 등)도 쓸 수 있어요.</p>
+    </section>`;
+}
+
+/** 수식형: 각 계산식 아래 변수 칩과 검증 메시지 갱신 */
+function refreshFormulaMsgs() {
+  const d = editor.draft;
+  const sample = Object.create(null);
+  d.inputs.forEach((x) => { sample[x.key] = 1; });
+  d.outputs.forEach((o, i) => {
+    const known = [...d.inputs.map((x) => x.key), ...d.outputs.slice(0, i).map((x) => x.key)].filter((k) => ID_RE.test(k));
+    const varsEl = $app.querySelector(`[data-vars="${i}"]`);
+    if (varsEl) {
+      varsEl.innerHTML = known.map((k) => `<button type="button" class="var-chip" data-act="ins" data-i="${i}" data-text="${esc(k)}">${esc(k)}</button>`).join('')
+        + ['+', '−', '×', '÷', '(', ')'].map((op) => `<button type="button" class="var-chip op" data-act="ins" data-i="${i}" data-text="${{ '−': '-', '×': '*', '÷': '/' }[op] || op}" aria-label="${op}">${op}</button>`).join('');
+    }
+    const msgEl = $app.querySelector(`[data-fmsg="${i}"]`);
+    if (!msgEl) return;
+    const r = checkFormula(o.formula, known);
+    msgEl.className = 'fmsg full ' + (r.ok ? 'ok' : o.formula.trim() ? 'err' : '');
+    msgEl.textContent = r.ok ? '✓ 올바른 식' : (o.formula.trim() ? r.error : '변수 버튼을 눌러 식을 만들 수 있어요');
+  });
+}
+function checkFormula(formula, known) {
+  if (!String(formula).trim()) return { ok: false, error: '계산식을 입력하세요' };
+  const c = compile(formula);
+  if (!c.ok) return { ok: false, error: c.error };
+  const unknown = [...c.vars].filter((v) => !known.includes(v) && !(v in CONST));
+  if (unknown.length) return { ok: false, error: `'${unknown.join(', ')}' 는 없는 키예요` };
+  return { ok: true };
+}
+
+function validateDraft(d) {
+  const fail = (error, focus) => ({ ok: false, error, focus });
+  const out = clone(d);
+  out.name = out.name.trim();
+  out.desc = (out.desc || '').trim();
+  if (!out.name) return fail('계산기 이름을 입력하세요', 'name');
+  if (d.type === 'convert') {
+    out.unitA = out.unitA.trim(); out.unitB = out.unitB.trim();
+    out.labelA = out.labelA.trim() || '입력'; out.labelB = out.labelB.trim() || '환산';
+    if (!out.unitA) return fail('입력 단위를 입력하세요', 'unitA');
+    if (!out.unitB) return fail('환산 단위를 입력하세요', 'unitB');
+    const items = [];
+    for (let i = 0; i < d.items.length; i++) {
+      const it = d.items[i];
+      const name = it.name.trim();
+      if (!name && !String(it.factor).trim()) continue;
+      if (!name) return fail(`${i + 1}번째 품목 이름을 입력하세요`, `items.${i}.name`);
+      const v = evalInput(it.factor);
+      if (!v.ok) return fail(`“${name}” 기준값을 숫자로 입력하세요`, `items.${i}.factor`);
+      items.push({ id: it.id, name, factor: v.value });
+    }
+    out.items = items;
+  } else if (d.type === 'blend') {
+    out.propName = out.propName.trim() || '함량';
+    out.amountUnit = out.amountUnit.trim();
+    const mats = [];
+    for (let i = 0; i < d.materials.length; i++) {
+      const m = d.materials[i];
+      const name = m.name.trim();
+      if (!name && !String(m.value).trim()) continue;
+      if (!name) return fail(`${i + 1}번째 원료 이름을 입력하세요`, `materials.${i}.name`);
+      const v = evalInput(m.value);
+      if (!v.ok) return fail(`“${name}” 함량을 숫자로 입력하세요`, `materials.${i}.value`);
+      mats.push({ id: m.id, name, value: v.value });
+    }
+    out.materials = mats;
+  } else {
+    if (!d.inputs.length) return fail('입력 항목을 하나 이상 추가하세요');
+    if (!d.outputs.length) return fail('결과 항목을 하나 이상 추가하세요');
+    const seen = new Set();
+    const all = [...d.inputs.map((x, i) => ['inputs', x, i]), ...d.outputs.map((x, i) => ['outputs', x, i])];
+    for (const [list, x, i] of all) {
+      const k = x.key.trim();
+      if (!ID_RE.test(k)) return fail(`키 '${k || '(빈칸)'}' 는 쓸 수 없어요. 영문/한글로 시작하세요`, `${list}.${i}.key`);
+      if (FN[k] || k in CONST) return fail(`'${k}' 는 함수 이름이라 키로 쓸 수 없어요`, `${list}.${i}.key`);
+      if (seen.has(k)) return fail(`키 '${k}' 가 중복돼요`, `${list}.${i}.key`);
+      seen.add(k);
+    }
+    out.inputs = d.inputs.map((x) => ({ id: x.id, key: x.key.trim(), label: x.label.trim() || x.key.trim(), unit: x.unit.trim() }));
+    for (let i = 0; i < d.outputs.length; i++) {
+      const o = d.outputs[i];
+      const known = [...out.inputs.map((x) => x.key), ...d.outputs.slice(0, i).map((x) => x.key.trim())];
+      const r = checkFormula(o.formula, known);
+      if (!r.ok) return fail(`“${o.label || o.key}” 계산식: ${r.error}`, `outputs.${i}.formula`);
+    }
+    out.outputs = d.outputs.map((o) => ({ id: o.id, key: o.key.trim(), label: o.label.trim() || o.key.trim(), unit: o.unit.trim(), formula: o.formula.trim() }));
+  }
+  return { ok: true, calc: out };
+}
+
+function saveEditor() {
+  $app.querySelectorAll('.invalid').forEach((e) => e.classList.remove('invalid'));
+  const res = validateDraft(editor.draft);
+  if (!res.ok) {
+    toast(res.error, true);
+    const el = res.focus && $app.querySelector(`[data-bind="${res.focus}"]`);
+    if (el) {
+      (el.closest('.input-wrap') || el).classList.add('invalid');
+      el.focus();
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+    return;
+  }
+  const calc = res.calc;
+  calc.updatedAt = Date.now();
+  const prev = getCalc(calc.id);
+  if (prev) {
+    // 새로 추가된 품목이 있으면 계산기로 돌아갔을 때 바로 선택
+    if (calc.type === 'convert') {
+      const added = calc.items.filter((x) => !prev.items.some((p) => p.id === x.id));
+      if (added.length) { const s = db.session[calc.id] || (db.session[calc.id] = {}); s.itemId = added[added.length - 1].id; }
+    }
+    db.calcs[db.calcs.indexOf(prev)] = calc;
+  } else {
+    calc.createdAt = Date.now();
+    db.calcs.push(calc);
+  }
+  if (calc.type === 'blend' && db.session[calc.id]?.rows) {
+    db.session[calc.id].rows.forEach((r) => { if (r.mat !== 'custom' && !calc.materials.some((m) => m.id === r.mat)) r.mat = calc.materials[0]?.id || 'custom'; });
+  }
+  persist();
+  const wasNew = editor.isNew;
+  editor = null;
+  toast('저장했어요');
+  if (wasNew) replaceRoute('#/calc/' + calc.id);
+  else up('#/calc/' + calc.id);
+}
+
+async function leaveEditor() {
+  if (editor?.dirty) {
+    const ok = await confirmDialog({ title: '저장하지 않고 나갈까요?', message: '변경한 내용이 사라져요.', ok: '나가기', danger: true });
+    if (!ok) return;
+  }
+  const d = editor.draft;
+  const isNew = editor.isNew;
+  editor = null;
+  if (isNew) up('#/');
+  else up('#/calc/' + d.id);
+}
+
+function openPaste(list) {
+  const isItems = list === 'items';
+  const d = editor.draft;
+  openSheet({
+    title: '엑셀에서 붙여넣기',
+    html: `<p>엑셀에서 <b>이름</b>과 <b>${isItems ? '기준값' : '함량(%)'}</b> 두 열을 복사해 붙여넣으세요. 한 줄에 하나씩, 탭·쉼표로 구분돼도 됩니다.</p>
+      <textarea class="txt" id="pasteBox" placeholder="${isItems ? '원단 C\t11.2\n원단 D\t9.8' : '바인더 Y\t42\n증점제\t5'}"></textarea>
+      <p class="help" id="pasteInfo">0개 인식</p>`,
+    onMount: (el) => {
+      const box = el.querySelector('#pasteBox');
+      box.addEventListener('input', () => { el.querySelector('#pasteInfo').textContent = `${parsePaste(box.value).length}개 인식`; });
+    },
+    actions: [
+      { label: '취소' },
+      {
+        label: '추가', kind: 'primary', onClick: (el) => {
+          const rows = parsePaste(el.querySelector('#pasteBox').value);
+          if (!rows.length) { toast('인식된 줄이 없어요', true); return false; }
+          const key = isItems ? 'factor' : 'value';
+          const arr = d[list].filter((x) => x.name.trim() || String(x[key]).trim());
+          rows.forEach(([name, v]) => {
+            const ex = arr.find((x) => x.name.trim() === name);
+            if (ex) ex[key] = v; else arr.push({ id: uid(), name, [key]: v });
+          });
+          d[list] = arr;
+          editor.dirty = true;
+          renderEditor();
+          toast(`${rows.length}개를 반영했어요 (저장을 눌러야 적용돼요)`);
+        },
+      },
+    ],
+  });
+}
+function parsePaste(text) {
+  return String(text).split(/\r?\n/).map((line) => {
+    const t = line.trim();
+    if (!t) return null;
+    const m = /^(.*?)[\t,;]+\s*([-+]?[\d.,]+)\s*%?\s*$/.exec(t) || /^(.*\S)\s+([-+]?[\d.,]+)\s*%?\s*$/.exec(t);
+    if (!m) return null;
+    const name = m[1].trim().replace(/^"|"$/g, '');
+    const v = evalInput(m[2]);
+    return name && v.ok ? [name, String(v.value)] : null;
+  }).filter(Boolean);
+}
+
+function insertAtCursor(input, text) {
+  const s = input.selectionStart ?? input.value.length, e = input.selectionEnd ?? s;
+  const before = input.value.slice(0, s), after = input.value.slice(e);
+  const pad = /^[A-Za-z0-9_가-힣]/.test(text) && /[A-Za-z0-9_가-힣)]$/.test(before) ? ' ' : '';
+  const ins = (/[+\-*/]/.test(text) && text.length === 1) ? ` ${text} ` : pad + text;
+  input.value = (before + ins + after).replace(/ {2,}/g, ' ');
+  const caret = Math.min(input.value.length, (before + ins).replace(/ {2,}/g, ' ').length);
+  input.focus();
+  input.setSelectionRange(caret, caret);
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+/* =========================================================
+   이벤트 (위임)
+   ========================================================= */
+$app.addEventListener('pointerdown', (e) => {
+  // 키패드를 눌러도 입력칸 포커스가 유지되도록
+  if (e.target.closest('.key, .var-chip')) e.preventDefault();
+});
+
+$app.addEventListener('click', (e) => {
+  const keyBtn = e.target.closest('[data-key]');
+  const r = parseRoute();
+  if (keyBtn && r.name === 'calc') { const c = getCalc(r.id); if (c) keypadPress(c, keyBtn.dataset.key); return; }
+  const b = e.target.closest('[data-act]');
+  if (!b) return;
+  const act = b.dataset.act;
+  if (b.tagName === 'SELECT' || b.tagName === 'INPUT') return;
+
+  // ---- 메인 ----
+  if (act === 'open') return go('#/calc/' + b.dataset.id);
+  if (act === 'card-menu') return cardMenu(b.dataset.id);
+  if (act === 'new') return openTypePicker();
+  if (act === 'home-menu') return homeMenu();
+
+  // ---- 계산기 ----
+  if (r.name === 'calc') {
+    const c = getCalc(r.id);
+    if (!c) return;
+    const s = session(c);
+    if (act === 'up-home') return up('#/');
+    if (act === 'edit-calc') return go('#/edit/' + c.id);
+    if (act === 'toggle-keypad') { db.prefs.keypad = !keypadOn(); persist(); return renderCalc(c); }
+    if (act === 'copy') return copyText(b.dataset.val);
+    if (act === 'clear-all') return clearAll(c);
+    if (act === 'pick-item') {
+      s.itemId = b.dataset.id;
+      $app.querySelectorAll('[data-act="pick-item"]').forEach((x) => x.setAttribute('aria-checked', String(x === b)));
+      updateCalc(c); persistSoon();
+      if (!isTouch()) getActiveInput()?.focus({ preventScroll: true });
+      return;
+    }
+    if (act === 'quick-add') {
+      return quickAddItem(c, (item) => {
+        if (c.type === 'convert') s.itemId = item.id;
+        renderCalc(c);
+      });
+    }
+    if (act === 'row-add') {
+      const row = newBlendRow(c);
+      s.rows.push(row); persist();
+      calcUI.activeId = 'bl-a-' + row.id;
+      renderCalc(c);
+      document.getElementById(calcUI.activeId)?.focus();
+      return;
+    }
+    if (act === 'row-del') {
+      s.rows = s.rows.filter((x) => x.id !== b.dataset.row);
+      if (!s.rows.length) s.rows.push(newBlendRow(c));
+      persist();
+      return renderCalc(c);
+    }
+    return;
+  }
+
+  // ---- 편집 ----
+  if (editor) {
+    const d = editor.draft;
+    if (act === 'ed-save') return saveEditor();
+    if (act === 'ed-cancel') return leaveEditor();
+    if (act === 'ed-del') { const c = getCalc(d.id); if (c) deleteCalc(c, () => { editor = null; replaceRoute('#/'); }); return; }
+    if (act === 'ed-dup') {
+      const c = getCalc(d.id);
+      if (!c) return;
+      const go2 = async () => {
+        if (editor.dirty && !(await confirmDialog({ title: '복제', message: '저장하지 않은 변경 내용은 복제본에 포함되지 않아요. 계속할까요?', ok: '복제' }))) return;
+        const copy = duplicateCalc(c);
+        editor = null;
+        replaceRoute('#/edit/' + copy.id);
+      };
+      return go2();
+    }
+    if (act === 'dec') {
+      d.decimals = clamp((d.decimals ?? 2) + +b.dataset.d, 0, 8);
+      editor.dirty = true;
+      $app.querySelector('#decOut').textContent = d.decimals;
+      $app.querySelector('#decPreview').textContent = fmt(1234.56789, d.decimals);
+      return;
+    }
+    if (act === 'paste') return openPaste(b.dataset.list);
+    if (act === 'ins') {
+      const input = $app.querySelector(`[data-bind="outputs.${b.dataset.i}.formula"]`);
+      if (input) insertAtCursor(input, b.dataset.text);
+      return;
+    }
+    const list = b.dataset.list;
+    if (list && d[list]) {
+      const arr = d[list];
+      const i = +b.dataset.i;
+      if (act === 'row-add') {
+        let row;
+        if (list === 'items') row = { id: uid(), name: '', factor: '' };
+        else if (list === 'materials') row = { id: uid(), name: '', value: '' };
+        else if (list === 'inputs') row = { id: uid(), key: nextKey(d, 'in'), label: '', unit: '' };
+        else row = { id: uid(), key: nextKey(d, 'out'), label: '', unit: '', formula: '' };
+        arr.push(row);
+        editor.focusNew = `${list}.${arr.length - 1}.${list === 'inputs' || list === 'outputs' ? 'label' : 'name'}`;
+      } else if (act === 'row-del') arr.splice(i, 1);
+      else if (act === 'row-up' && i > 0) [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]];
+      else if (act === 'row-down' && i < arr.length - 1) [arr[i + 1], arr[i]] = [arr[i], arr[i + 1]];
+      else return;
+      editor.dirty = true;
+      const y = window.scrollY;
+      renderEditor();
+      if (!editor.focusNew) window.scrollTo(0, y);
+    }
+  }
+});
+
+$app.addEventListener('input', (e) => {
+  const el = e.target;
+  const r = parseRoute();
+  if (r.name === 'calc' && el.matches('input[data-calc]')) {
+    const c = getCalc(r.id);
+    if (c) { setActive(el); onCalcInput(c, el); }
+    return;
+  }
+  if (r.name === 'calc' && el.dataset.act === 'item-search') {
+    const q = el.value.trim().toLowerCase();
+    $app.querySelectorAll('[data-act="pick-item"]').forEach((chip) => { chip.hidden = !!q && !chip.dataset.name.includes(q); });
+    return;
+  }
+  if (editor && el.dataset.bind) {
+    setPath(editor.draft, el.dataset.bind, el.value);
+    editor.dirty = true;
+    el.classList.remove('invalid');
+    el.closest('.input-wrap')?.classList.remove('invalid');
+    const d = editor.draft;
+    if (el.hasAttribute('data-unit')) {
+      $app.querySelectorAll('[data-unit-hint="row"]').forEach((x) => { x.textContent = `${d.unitB}/${d.unitA}`; });
+      const head = $app.querySelector('[data-unit-hint="head"]');
+      if (head) head.textContent = d.type === 'convert' ? `1 ${d.unitA} 당 ${d.unitB}` : `${d.propName} 함량 %`;
+    }
+    if (d.type === 'formula' && (el.hasAttribute('data-formula') || el.hasAttribute('data-key-field'))) refreshFormulaMsgs();
+  }
+});
+
+$app.addEventListener('change', (e) => {
+  const el = e.target;
+  const r = parseRoute();
+  if (r.name !== 'calc') return;
+  const c = getCalc(r.id);
+  if (!c) return;
+  if (el.matches('input[data-calc]')) return commitExpr(c, el);
+  if (el.dataset.act === 'row-mat') {
+    const s = session(c);
+    const row = s.rows.find((x) => x.id === el.dataset.row);
+    if (!row) return;
+    if (el.value === '__new') {
+      el.value = row.mat;
+      return quickAddItem(c, (m) => { row.mat = m.id; renderCalc(c); });
+    }
+    row.mat = el.value;
+    persist();
+    calcUI.activeId = row.mat === 'custom' ? 'bl-c-' + row.id : 'bl-a-' + row.id;
+    renderCalc(c);
+    if (!isTouch()) document.getElementById(calcUI.activeId)?.focus();
+  }
+});
+
+$app.addEventListener('focusin', (e) => {
+  if (e.target.matches('input[data-calc]') && calcUI) setActive(e.target);
+});
+
+$app.addEventListener('keydown', (e) => {
+  const el = e.target;
+  const r = parseRoute();
+  if (r.name === 'calc' && el.matches('input[data-calc]') && e.key === 'Enter') {
+    e.preventDefault();
+    const c = getCalc(r.id);
+    if (!c) return;
+    commitExpr(c, el);
+    const nx = nextCalcInput(el);
+    if (nx) { nx.focus(); nx.select(); }
+  }
+  if (editor && e.key === 'Enter' && el.matches('.erow input')) {
+    e.preventDefault();
+    const inputs = [...$app.querySelectorAll('#edForm input')];
+    inputs[inputs.indexOf(el) + 1]?.focus();
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && sheet) { e.preventDefault(); return closeSheet(); }
+  if (sheet) return;
+  if ((e.ctrlKey || e.metaKey) && e.key === 's' && editor) { e.preventDefault(); return saveEditor(); }
+  // 계산기 화면에서 입력칸 밖에 있을 때 숫자 키를 누르면 활성 입력칸으로
+  const r = parseRoute();
+  if (r.name !== 'calc' || e.ctrlKey || e.metaKey || e.altKey) return;
+  const t = e.target;
+  if (t.matches('input, textarea, select')) return;
+  if (/^[0-9.+\-*/]$/.test(e.key)) {
+    const el = getActiveInput();
+    if (!el) return;
+    e.preventDefault();
+    el.focus();
+    const c = getCalc(r.id);
+    if (c) keypadPress(c, e.key);
+  }
+});
+
+window.matchMedia('(pointer: coarse)').addEventListener?.('change', applyInputMode);
+
+/* =========================================================
+   시작
+   ========================================================= */
+try { if (!localStorage.getItem(STORE_KEY)) persist(); } catch { storageOk = false; }
+render();
+
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>
