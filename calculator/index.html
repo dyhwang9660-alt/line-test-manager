@@ -34,6 +34,7 @@
   --danger-soft: #f6dcd8;
   --ok: #2f7d4a;
   --overlay: rgba(28, 29, 26, .42);
+  --tc-bg: #dfe8d3; --tc-fg: #33502a; --tf-bg: #dde4ef; --tf-fg: #2b4166; --tb-bg: #f4e2cf; --tb-fg: #77461c;
   --shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 12px 32px rgba(40, 38, 30, .10);
   --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "D2Coding", monospace;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
@@ -44,7 +45,7 @@
     --bg: #121311; --surface: #1d1f1b; --surface-2: #252722; --ink: #ecebe5; --muted: #9b9d94; --line: #34372f;
     --key: #2c2f29; --key-ink: #ecebe5; --key-shadow: #121310; --fn: #3a3d36; --accent: #f08436; --accent-press: #a8561c;
     --accent-soft: #42301f; --lcd: #1b2517; --lcd-ink: #c4e8a0; --lcd-dim: #7f9b6a; --danger: #ef6a5a; --danger-soft: #3d221f;
-    --ok: #6cc58b; --overlay: rgba(0,0,0,.6); --shadow: 0 12px 32px rgba(0,0,0,.35);
+    --ok: #6cc58b; --overlay: rgba(0,0,0,.6); --tc-bg: #27331f; --tc-fg: #b5d69a; --tf-bg: #232c3b; --tf-fg: #a9c0e6; --tb-bg: #3a2c1e; --tb-fg: #eebf8c; --shadow: 0 12px 32px rgba(0,0,0,.35);
     color-scheme: dark;
   }
 }
@@ -52,7 +53,7 @@
   --bg: #121311; --surface: #1d1f1b; --surface-2: #252722; --ink: #ecebe5; --muted: #9b9d94; --line: #34372f;
   --key: #2c2f29; --key-ink: #ecebe5; --key-shadow: #121310; --fn: #3a3d36; --accent: #f08436; --accent-press: #a8561c;
   --accent-soft: #42301f; --lcd: #1b2517; --lcd-ink: #c4e8a0; --lcd-dim: #7f9b6a; --danger: #ef6a5a; --danger-soft: #3d221f;
-  --ok: #6cc58b; --overlay: rgba(0,0,0,.6); --shadow: 0 12px 32px rgba(0,0,0,.35);
+  --ok: #6cc58b; --overlay: rgba(0,0,0,.6); --tc-bg: #27331f; --tc-fg: #b5d69a; --tf-bg: #232c3b; --tf-fg: #a9c0e6; --tb-bg: #3a2c1e; --tb-fg: #eebf8c; --shadow: 0 12px 32px rgba(0,0,0,.35);
   color-scheme: dark;
 }
 
@@ -71,7 +72,9 @@ button:disabled { cursor: default; opacity: .45; }
 
 .shell {
   max-width: 480px; margin: 0 auto;
-  padding: max(12px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+  padding-block: 12px calc(24px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 .shell.wide { max-width: 760px; }
 
@@ -126,17 +129,9 @@ button:disabled { cursor: default; opacity: .45; }
   font-size: 12px; font-weight: 700; background: var(--surface-2); color: var(--ink); white-space: nowrap; flex: none;
 }
 .badge svg { width: 13px; height: 13px; }
-.badge.t-convert { background: #dfe8d3; color: #33502a; }
-.badge.t-formula { background: #dde4ef; color: #2b4166; }
-.badge.t-blend { background: #f4e2cf; color: #77461c; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .badge.t-convert { background: #27331f; color: #b5d69a; }
-  :root:not([data-theme="light"]) .badge.t-formula { background: #232c3b; color: #a9c0e6; }
-  :root:not([data-theme="light"]) .badge.t-blend { background: #3a2c1e; color: #eebf8c; }
-}
-:root[data-theme="dark"] .badge.t-convert { background: #27331f; color: #b5d69a; }
-:root[data-theme="dark"] .badge.t-formula { background: #232c3b; color: #a9c0e6; }
-:root[data-theme="dark"] .badge.t-blend { background: #3a2c1e; color: #eebf8c; }
+.badge.t-convert, .type-ico.t-convert { background: var(--tc-bg); color: var(--tc-fg); }
+.badge.t-formula, .type-ico.t-formula { background: var(--tf-bg); color: var(--tf-fg); }
+.badge.t-blend, .type-ico.t-blend { background: var(--tb-bg); color: var(--tb-fg); }
 .card.add {
   align-items: center; justify-content: center; gap: 8px; box-shadow: none; background: transparent;
   border: 2px dashed var(--line); color: var(--muted); font-weight: 600;
@@ -327,9 +322,6 @@ textarea.txt { height: auto; min-height: 140px; padding: 10px 12px; resize: vert
 .type-opt:hover { border-color: var(--accent); }
 .type-ico { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; }
 .type-ico svg { width: 24px; height: 24px; }
-.type-ico.t-convert { background: #dfe8d3; color: #33502a; }
-.type-ico.t-formula { background: #dde4ef; color: #2b4166; }
-.type-ico.t-blend { background: #f4e2cf; color: #77461c; }
 .type-opt b { display: block; font-size: 16px; margin-bottom: 2px; }
 .type-opt span { display: block; font-size: 13.5px; color: var(--muted); }
 .type-opt small { display: block; margin-top: 6px; font-size: 12.5px; color: var(--ink); opacity: .75; }
@@ -932,14 +924,23 @@ function homeMenu() {
     { label: '설치 · 사용 안내', icon: I.info, onClick: showInfo },
   ]);
 }
-function exportBackup() {
+async function exportBackup() {
   const data = { app: 'custom-calculator', version: 1, exportedAt: new Date().toISOString(), calcs: db.calcs };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const json = JSON.stringify(data, null, 2);
   const d = new Date();
   const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+  const filename = `계산기-백업-${stamp}.json`;
+  // claude.ai 에서 열었을 때는 플랫폼의 다운로드 기능을 사용
+  const dl = window.claude?.use ? await window.claude.use('downloads').catch(() => null) : null;
+  if (dl) {
+    try { await dl.save({ filename, data: json }); toast('백업 파일을 내보냈어요'); }
+    catch (e) { if (e?.code !== 'declined') toast('이 화면에서는 파일을 저장할 수 없어요', true); }
+    return;
+  }
+  const blob = new Blob([json], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `계산기-백업-${stamp}.json`;
+  a.download = filename;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   toast('백업 파일을 내보냈어요');
