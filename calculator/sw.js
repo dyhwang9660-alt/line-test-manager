@@ -1,5 +1,5 @@
 // 오프라인 사용을 위한 서비스 워커 (웹 주소로 열었을 때만 동작)
-const CACHE = 'custom-calculator-v1';
+const CACHE = 'custom-calculator-v2';
 const ASSETS = [
   './',
   './index.html',

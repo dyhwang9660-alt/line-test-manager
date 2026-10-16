@@ -178,6 +178,66 @@ button:disabled { cursor: default; opacity: .35; }
 .card.add svg { width: 26px; height: 26px; }
 .empty { text-align: center; padding: 28px 16px; color: var(--muted); }
 
+/* groups */
+.group-tabs {
+  display: flex; gap: 8px; overflow-x: auto; margin: 0 0 20px; padding: 2px 0;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.group-tabs::-webkit-scrollbar { display: none; }
+.gtab {
+  flex: none; height: 40px; padding: 0 16px; border-radius: 999px; border: 0; background: var(--surface);
+  font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
+}
+.gtab:hover { background: var(--surface-2); }
+.gtab .n { font-size: 12px; font-weight: 700; color: var(--muted); }
+.gtab[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); }
+.gtab[aria-pressed="true"] .n { color: inherit; opacity: .6; }
+.gtab.add { background: transparent; border: 1.5px dashed var(--line); color: var(--muted); }
+.gtab.add:hover { border-color: var(--ink); color: var(--ink); }
+.gtab svg { width: 16px; height: 16px; }
+.group { margin-bottom: 26px; }
+.group-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 2px 12px 4px; }
+.group-head h2 { margin: 0; font-size: 16px; font-weight: 700; display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.group-head h2 span { font-size: 13px; color: var(--muted); font-weight: 600; }
+.group-tools { display: flex; gap: 6px; flex: none; }
+.icon-btn.sm { width: 36px; height: 36px; }
+.icon-btn.sm svg { width: 18px; height: 18px; }
+.group-empty { padding: 22px 16px; border-radius: 22px; border: 1.5px dashed var(--line); color: var(--muted); text-align: center; font-size: 14px; }
+.menu button .check { margin-left: auto; color: var(--ink); }
+.menu button .check svg { background: none; padding: 0; width: 18px; height: 18px; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); }
+.chip.sm { height: 34px; padding: 0 14px; font-size: 13px; }
+.gchips { margin-top: 8px; }
+
+/* combobox (검색 자동완성) */
+.combo { position: relative; }
+.combo-field {
+  display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 14px 0 18px; border-radius: 999px;
+  background: var(--surface); border: 1.5px solid transparent;
+}
+.combo-field:focus-within { border-color: var(--ink); background: var(--field); }
+.combo-field > svg { width: 18px; height: 18px; color: var(--muted); flex: none; }
+.combo-input { flex: 1; min-width: 0; height: 100%; border: 0; outline: none; background: transparent; font-weight: 600; }
+.combo-input::placeholder { color: var(--muted); font-weight: 500; }
+.combo.sm .combo-field { height: 46px; border-radius: 14px; padding: 0 10px 0 12px; background: var(--field); gap: 6px; }
+.combo-list {
+  position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 30; max-height: min(300px, 50vh); overflow: auto;
+  margin: 0; padding: 6px; list-style: none; background: var(--bg); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow);
+}
+.combo-opt { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 14px; cursor: pointer; }
+.combo-opt b { flex: 1; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
+.combo-opt b mark { background: none; color: inherit; font-weight: 800; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.combo-opt small { color: var(--muted); white-space: nowrap; font-size: 12.5px; }
+.combo-opt svg { width: 16px; height: 16px; flex: none; }
+.combo-opt[aria-selected="true"], .combo-opt:hover { background: var(--surface); }
+.combo-opt.special b { color: var(--muted); }
+.combo-empty { padding: 12px; color: var(--muted); font-size: 13.5px; text-align: center; }
+.chips-label { align-self: center; font-size: 12.5px; font-weight: 600; color: var(--muted); margin-right: 2px; }
+.panel-head h2 .count { font-size: 12.5px; color: var(--muted); font-weight: 600; margin-left: 4px; }
+.install-steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; color: var(--ink); }
+.url-box { display: flex; gap: 8px; align-items: center; padding: 6px 6px 6px 14px; border-radius: 999px; background: var(--surface); margin-top: 12px; }
+.url-box code { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 13px; }
+
 /* ---------- calculator ---------- */
 .device { display: block; }
 .lcd {
@@ -254,7 +314,7 @@ button:disabled { cursor: default; opacity: .35; }
 /* blend rows */
 .brows { display: grid; gap: 10px; }
 .brow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px; gap: 8px; align-items: center; padding: 12px; border-radius: 20px; background: var(--surface); }
-.brow > .select { grid-column: 1 / 3; grid-row: 1; }
+.brow > .select, .brow > .combo { grid-column: 1 / 3; grid-row: 1; }
 .brow > .del { grid-column: 3; grid-row: 1; }
 .brow > .amount { grid-column: 1 / 3; grid-row: 2; }
 .brow.has-custom > .amount { grid-column: 2 / 3; }
@@ -364,8 +424,9 @@ textarea.txt { height: auto; min-height: 140px; padding: 12px 14px; resize: vert
 .type-opt:hover { border-color: var(--ink); }
 .type-ico { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--on-ink); }
 .type-ico svg { width: 22px; height: 22px; }
+.type-opt .type-txt { display: block; min-width: 0; }
 .type-opt b { display: block; font-size: 16px; margin-bottom: 2px; }
-.type-opt span { display: block; font-size: 13.5px; color: var(--muted); }
+.type-opt .type-desc { display: block; font-size: 13.5px; color: var(--muted); }
 .type-opt small { display: block; margin-top: 8px; font-size: 12.5px; color: var(--ink); font-weight: 500; }
 
 /* ---------- sheet / dialog ---------- */
@@ -442,6 +503,10 @@ const I = {
   upload: svg('<path d="M12 21V9M7 14l5-5 5 5M4 3h16"/>'),
   info: svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'),
   sparkle: svg('<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/>'),
+  folder: svg('<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>'),
+  chev: svg('<path d="M6 9l6 6 6-6"/>'),
+  check: svg('<path d="M5 12l5 5 9-10"/>'),
+  phone: svg('<rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/>'),
   search: svg('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'),
   sliders: svg('<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>'),
   clipboard: svg('<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/>'),
@@ -642,12 +707,12 @@ function seedCalcs() {
   const t = Date.now();
   return [
     {
-      id: uid(), type: 'convert', name: '원단 길이-무게 변환기', desc: '', decimals: 2, createdAt: t,
+      id: uid(), type: 'convert', name: '원단 길이-무게 변환기', desc: '', group: '원단', decimals: 2, createdAt: t,
       labelA: '길이', unitA: 'm', labelB: '무게', unitB: 'g',
       items: [{ id: uid(), name: '원단 A', factor: 10 }, { id: uid(), name: '원단 B', factor: 12.5 }],
     },
     {
-      id: uid(), type: 'formula', name: '고형분 계산기', desc: '건조법', decimals: 2, createdAt: t + 1,
+      id: uid(), type: 'formula', name: '고형분 계산기', desc: '건조법', group: '고형분', decimals: 2, createdAt: t + 1,
       inputs: [
         { id: uid(), key: 'A', label: '건조 전 무게', unit: 'g' },
         { id: uid(), key: 'B', label: '건조 후 무게', unit: 'g' },
@@ -658,7 +723,7 @@ function seedCalcs() {
       ],
     },
     {
-      id: uid(), type: 'blend', name: '배합 고형분 계산기', desc: '', decimals: 2, createdAt: t + 2,
+      id: uid(), type: 'blend', name: '배합 고형분 계산기', desc: '', group: '고형분', decimals: 2, createdAt: t + 2,
       propName: '고형분', amountUnit: 'kg',
       materials: [
         { id: uid(), name: '바인더 (예시)', value: 45 },
@@ -675,12 +740,26 @@ function loadDb() {
     const raw = localStorage.getItem(STORE_KEY);
     if (raw) {
       const d = JSON.parse(raw);
-      if (d && Array.isArray(d.calcs)) return { calcs: d.calcs, session: d.session || {}, prefs: d.prefs || {} };
+      if (d && Array.isArray(d.calcs)) return { calcs: d.calcs, session: d.session || {}, prefs: d.prefs || {}, groups: Array.isArray(d.groups) ? d.groups : [] };
     }
   } catch { storageOk = false; }
-  return { calcs: seedCalcs(), session: {}, prefs: {} };
+  return { calcs: seedCalcs(), session: {}, prefs: {}, groups: [] };
 }
 let db = loadDb();
+const NO_GROUP = '__none';
+/** 묶음 목록 정리: 순서는 db.groups 를 따르고, 계산기에만 있는 묶음 이름은 뒤에 추가 */
+function syncGroups() {
+  const seen = new Set();
+  const out = [];
+  const add = (g) => { const n = String(g || '').trim(); if (n && !seen.has(n)) { seen.add(n); out.push(n); } };
+  db.groups.forEach(add);
+  db.calcs.forEach((c) => { c.group = String(c.group || '').trim(); add(c.group); });
+  db.groups = out;
+  const f = db.prefs.groupFilter;
+  if (f && f !== NO_GROUP && !seen.has(f)) db.prefs.groupFilter = '';
+  if (f === NO_GROUP && !db.calcs.some((c) => !c.group)) db.prefs.groupFilter = '';
+}
+syncGroups();
 function persist() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(db)); storageOk = true; }
   catch { if (storageOk) toast('이 브라우저에서는 저장이 안 돼요. 백업을 꼭 내보내 주세요.', true); storageOk = false; }
@@ -698,6 +777,7 @@ function session(c) {
   if (c.type === 'convert') {
     if (!c.items.some((i) => i.id === s.itemId)) s.itemId = c.items[0]?.id || null;
     s.src = s.src === 'b' ? 'b' : 'a';
+    if (!Array.isArray(s.recent)) s.recent = [];
     s.a ??= ''; s.b ??= '';
   } else if (c.type === 'formula') {
     s.vals ||= {};
@@ -861,7 +941,8 @@ function render() {
         editor = { key: viewKey, draft: toDraft(c), isNew: false, dirty: false };
       } else {
         if (!TYPES[r.type]) return replaceRoute('#/');
-        editor = { key: viewKey, draft: blankDraft(r.type), isNew: true, dirty: false };
+        editor = { key: viewKey, draft: blankDraft(r.type, pendingGroup), isNew: true, dirty: false };
+        pendingGroup = '';
       }
     }
     renderEditor();
@@ -874,10 +955,9 @@ function render() {
 /* =========================================================
    메인 화면
    ========================================================= */
-function renderHome() {
-  editor = null;
-  const cards = db.calcs.map((c) => `
-    <article class="card" data-search="${esc((c.name + ' ' + (c.desc || '') + ' ' + TYPES[c.type].label).toLowerCase())}">
+function cardHTML(c) {
+  return `
+    <article class="card" data-search="${esc((c.name + ' ' + (c.desc || '') + ' ' + (c.group || '') + ' ' + TYPES[c.type].label).toLowerCase())}">
       <button class="card-open" data-act="open" data-id="${c.id}" aria-label="${esc(c.name)} 열기"></button>
       <div class="card-top">
         <span class="badge t-${c.type}">${I['t_' + c.type]}${TYPES[c.type].label}</span>
@@ -886,7 +966,42 @@ function renderHome() {
       <h2 class="card-name">${esc(c.name)}</h2>
       ${c.desc ? `<div class="card-meta" style="margin-top:0">${esc(c.desc)}</div>` : ''}
       <div class="card-meta">${esc(calcMeta(c))}</div>
-    </article>`).join('');
+    </article>`;
+}
+const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+
+function renderHome() {
+  editor = null;
+  syncGroups();
+  const f = db.prefs.groupFilter || '';
+  const hasGroups = db.groups.length > 0;
+  const ungrouped = db.calcs.filter((c) => !c.group);
+  const inGroup = (g) => db.calcs.filter((c) => c.group === g);
+  const tab = (v, label, n) => `<button class="gtab" data-act="group-filter" data-g="${esc(v)}" aria-pressed="${f === v}">${esc(label)}<span class="n">${n}</span></button>`;
+  const section = (g, label, list) => `
+    <section class="group" data-group="${esc(g)}">
+      <div class="group-head">
+        <h2>${g === NO_GROUP ? '' : I.folder.replace('<svg', '<svg style="width:17px;height:17px;align-self:center"')}${esc(label)}<span>${list.length}</span></h2>
+        <div class="group-tools">
+          <button class="icon-btn sm" data-act="new" data-g="${esc(g === NO_GROUP ? '' : g)}" aria-label="${esc(label)}에 새 계산기 추가" title="이 묶음에 새 계산기">${I.plus}</button>
+          ${g === NO_GROUP ? '' : `<button class="icon-btn sm" data-act="group-menu" data-g="${esc(g)}" aria-label="${esc(label)} 묶음 메뉴">${I.more}</button>`}
+        </div>
+      </div>
+      ${list.length ? `<div class="grid">${list.map(cardHTML).join('')}</div>` : '<div class="group-empty">이 묶음에 계산기가 없어요.<br>위의 + 버튼이나 계산기 메뉴의 “묶음 이동”으로 넣어 보세요.</div>'}
+    </section>`;
+  let body;
+  if (!hasGroups) {
+    body = `
+      <div class="sec-title"><h2>계산기</h2><button class="link-btn" data-act="group-new">묶음 만들기</button></div>
+      <div class="grid">${db.calcs.map(cardHTML).join('')}<button class="card add" data-act="new">${I.plus}<span>새 계산기</span></button></div>`;
+  } else if (f === '') {
+    body = db.groups.map((g) => section(g, g, inGroup(g))).join('') + (ungrouped.length ? section(NO_GROUP, '미분류', ungrouped) : '');
+  } else if (f === NO_GROUP) {
+    body = section(NO_GROUP, '미분류', ungrouped);
+  } else {
+    body = section(f, f, inGroup(f));
+  }
+  const installLabel = isStandalone() ? '사용 안내' : '앱 설치';
   $app.innerHTML = `
     <div class="shell wide">
       <header class="topbar">
@@ -895,30 +1010,176 @@ function renderHome() {
       </header>
       <section class="hero" aria-label="요약">
         <div class="hero-top">
-          <div><div class="hero-label">내 계산기</div><div class="hero-num">${db.calcs.length}<span>개</span></div></div>
+          <div><div class="hero-label">내 계산기${hasGroups ? ` · 묶음 ${db.groups.length}개` : ''}</div><div class="hero-num">${db.calcs.length}<span>개</span></div></div>
           <button class="hero-pill" data-act="home-menu">백업</button>
         </div>
         <div class="hero-actions">
-          <button class="hero-btn" data-act="new">${I.plus}새 계산기</button>
-          <button class="hero-btn" data-act="show-info">${I.info}사용 안내</button>
+          <button class="hero-btn" data-act="new" data-g="${esc(f && f !== NO_GROUP ? f : '')}">${I.plus}새 계산기</button>
+          <button class="hero-btn" data-act="${isStandalone() ? 'show-info' : 'install'}">${isStandalone() ? I.info : I.download}${installLabel}</button>
         </div>
       </section>
       ${db.calcs.length > 3 ? `<label class="searchbar">${I.search}<input id="calcSearch" type="search" placeholder="계산기 검색" data-act="calc-search" aria-label="계산기 검색" autocomplete="off"><span class="dot" aria-hidden="true">${I.sliders}</span></label>` : ''}
-      <div class="sec-title"><h2>계산기</h2><span id="calcCount">${db.calcs.length ? '눌러서 열기' : ''}</span></div>
-      <div class="grid">
-        ${cards}
-        <button class="card add" data-act="new">${I.plus}<span>새 계산기</span></button>
-      </div>
+      ${hasGroups ? `<div class="group-tabs" role="toolbar" aria-label="묶음 선택">
+        ${tab('', '전체', db.calcs.length)}${db.groups.map((g) => tab(g, g, inGroup(g).length)).join('')}${ungrouped.length ? tab(NO_GROUP, '미분류', ungrouped.length) : ''}
+        <button class="gtab add" data-act="group-new">${I.plus}묶음</button>
+      </div>` : ''}
+      <div id="homeBody">${body}</div>
       <p class="empty" id="noResult" hidden>검색 결과가 없어요</p>
       ${db.calcs.length ? '' : '<p class="empty">아직 계산기가 없어요. “새 계산기”를 눌러 시작하세요.</p>'}
     </div>`;
+  const active = $app.querySelector('.gtab[aria-pressed="true"]');
+  if (active && active.offsetLeft > active.parentElement.clientWidth - 60) active.scrollIntoView({ inline: 'center', block: 'nearest' });
 }
 
-function openTypePicker() {
+/* ---------- 묶음 관리 ---------- */
+function promptSheet({ title, label, value = '', placeholder = '', ok = '확인', onOk }) {
+  openSheet({
+    title,
+    html: `<label class="f"><span>${esc(label)}</span><input class="txt" id="pr-in" value="${esc(value)}" placeholder="${esc(placeholder)}" maxlength="20" autocomplete="off"></label>`,
+    actions: [
+      { label: '취소' },
+      {
+        label: ok, kind: 'primary', onClick: (el) => {
+          const inp = el.querySelector('#pr-in');
+          const err = onOk(inp.value.trim());
+          if (err) { inp.classList.add('invalid'); inp.focus(); toast(err, true); return false; }
+        },
+      },
+    ],
+    onMount: (el) => { const inp = el.querySelector('#pr-in'); inp.focus(); inp.select(); },
+  });
+}
+function newGroupSheet(after) {
+  promptSheet({
+    title: '새 묶음', label: '묶음 이름', placeholder: '예: 원단, 코팅액, 배합', ok: '만들기',
+    onOk: (name) => {
+      if (!name) return '묶음 이름을 입력하세요';
+      if (!db.groups.includes(name)) db.groups.push(name);
+      persist();
+      if (after) after(name);
+      else { db.prefs.groupFilter = name; persist(); renderHome(); }
+      toast(`“${name}” 묶음을 만들었어요`);
+    },
+  });
+}
+function groupMenu(g) {
+  const idx = db.groups.indexOf(g);
+  if (idx < 0) return;
+  const move = (d) => {
+    const j = idx + d;
+    if (j < 0 || j >= db.groups.length) return;
+    [db.groups[idx], db.groups[j]] = [db.groups[j], db.groups[idx]];
+    persist(); renderHome();
+  };
+  menuSheet(`${g} 묶음`, [
+    {
+      label: '이름 바꾸기', icon: I.edit, onClick: () => promptSheet({
+        title: '묶음 이름 바꾸기', label: '묶음 이름', value: g, ok: '저장',
+        onOk: (name) => {
+          if (!name) return '묶음 이름을 입력하세요';
+          if (name !== g && db.groups.includes(name)) return '이미 있는 묶음 이름이에요';
+          db.groups[idx] = name;
+          db.calcs.forEach((c) => { if (c.group === g) c.group = name; });
+          if (db.prefs.groupFilter === g) db.prefs.groupFilter = name;
+          persist(); renderHome();
+        },
+      }),
+    },
+    ...(idx > 0 ? [{ label: '앞으로 이동', icon: I.up, onClick: () => move(-1) }] : []),
+    ...(idx < db.groups.length - 1 ? [{ label: '뒤로 이동', icon: I.down, onClick: () => move(1) }] : []),
+    '-',
+    {
+      label: '묶음 삭제', icon: I.trash, danger: true, onClick: async () => {
+        const n = db.calcs.filter((c) => c.group === g).length;
+        const ok = await confirmDialog({ title: '묶음 삭제', message: n ? `“${g}” 묶음을 삭제할까요? 안에 있는 계산기 ${n}개는 지워지지 않고 미분류로 옮겨져요.` : `“${g}” 묶음을 삭제할까요?`, ok: '삭제', danger: true });
+        if (!ok) return;
+        db.groups.splice(db.groups.indexOf(g), 1);
+        db.calcs.forEach((c) => { if (c.group === g) c.group = ''; });
+        if (db.prefs.groupFilter === g) db.prefs.groupFilter = '';
+        persist(); renderHome();
+        toast('묶음을 삭제했어요');
+      },
+    },
+  ]);
+}
+function moveGroupSheet(c) {
+  const opts = ['', ...db.groups];
+  const html = `<div class="menu">${opts.map((g, i) => `<button data-mg="${i}">${g ? I.folder : I.x}<span>${g ? esc(g) : '묶음 없음 (미분류)'}</span>${(c.group || '') === g ? `<span class="check">${I.check}</span>` : ''}</button>`).join('')}
+    <hr><button data-mg="new">${I.plus}<span>새 묶음 만들어 이동</span></button></div>`;
+  const apply = (g) => { c.group = g; persist(); renderHome(); toast(g ? `“${g}” 묶음으로 옮겼어요` : '미분류로 옮겼어요'); };
+  openSheet({
+    title: `“${c.name}” 묶음 이동`, html,
+    onMount: (el) => el.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-mg]');
+      if (!b) return;
+      closeSheet(false);
+      if (b.dataset.mg === 'new') return newGroupSheet((name) => apply(name));
+      apply(opts[+b.dataset.mg]);
+    }),
+  });
+}
+
+/* ---------- 앱 설치 ---------- */
+let installEvt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  installEvt = e;
+});
+window.addEventListener('appinstalled', () => { installEvt = null; toast('앱으로 설치했어요'); if (parseRoute().name === 'home') renderHome(); });
+async function doInstall() {
+  if (installEvt) {
+    const evt = installEvt;
+    installEvt = null;
+    evt.prompt();
+    try { await evt.userChoice; } catch { /* 무시 */ }
+    return;
+  }
+  showInstallGuide();
+}
+function showInstallGuide() {
+  const ua = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const android = /Android/.test(ua);
+  const embedded = window.self !== window.top;
+  const local = location.protocol === 'file:';
+  let html;
+  if (embedded || local) {
+    html = `<p>${embedded ? '지금 화면은 미리보기 창이라 여기서는 앱으로 설치할 수 없어요.' : '파일로 직접 연 상태라 여기서는 앱으로 설치할 수 없어요.'}</p>
+      <ol class="install-steps">
+        <li><b>휴대폰</b>: 계산기 웹 주소(Vercel 앱 주소 뒤에 <b>/calculator/</b>)를 크롬이나 사파리로 열고, 그 화면에서 “앱 설치”를 누르세요.</li>
+        <li><b>Windows PC</b>: 계산기 폴더의 <b>설치.bat</b>을 실행하면 바탕화면에 바로가기가 생겨요.</li>
+      </ol>
+      <p class="help">앱으로 설치한 쪽과 지금 화면은 저장 공간이 달라요. 메뉴 → 백업 내보내기/불러오기로 옮기세요.</p>`;
+  } else if (ios) {
+    html = `<ol class="install-steps">
+        <li>사파리 아래쪽의 <b>공유 버튼</b>(네모에 위쪽 화살표)을 누르세요.</li>
+        <li>목록에서 <b>홈 화면에 추가</b>를 고르세요.</li>
+        <li>오른쪽 위 <b>추가</b>를 누르면 홈 화면에 계산기 아이콘이 생겨요.</li>
+      </ol>
+      <p class="help">크롬 등 다른 앱으로 열었다면 사파리로 다시 열어 주세요.</p>`;
+  } else if (android) {
+    html = `<ol class="install-steps">
+        <li>크롬 오른쪽 위 <b>⋮ 메뉴</b>를 누르세요.</li>
+        <li><b>앱 설치</b> 또는 <b>홈 화면에 추가</b>를 고르세요.</li>
+        <li>홈 화면에 생긴 계산기 아이콘으로 열면 앱처럼 전체 화면으로 열려요.</li>
+      </ol>`;
+  } else {
+    html = `<ol class="install-steps">
+        <li>크롬/엣지 주소창 오른쪽의 <b>설치 아이콘</b>을 누르거나, 메뉴 → <b>앱 설치</b>를 고르세요.</li>
+        <li>설치하면 시작 메뉴와 바탕화면에서 바로 열 수 있어요.</li>
+      </ol>`;
+  }
+  html += `<p class="help" style="margin-top:12px">한 번 열어 두면 인터넷이 없어도 동작해요.</p>`;
+  openSheet({ title: '앱으로 설치하기', html });
+}
+
+let pendingGroup = '';
+function openTypePicker(group = '') {
+  pendingGroup = group;
   const html = `<div class="type-list">${Object.entries(TYPES).map(([k, t]) => `
     <button class="type-opt" data-type="${k}">
       <span class="type-ico t-${k}">${I['t_' + k]}</span>
-      <span><b>${t.title}</b><span>${t.desc}</span><small>${t.example}</small></span>
+      <span class="type-txt"><b>${t.title}</b><span class="type-desc">${t.desc}</span><small>${t.example}</small></span>
     </button>`).join('')}</div>`;
   openSheet({
     title: '어떤 계산기를 만들까요?', html,
@@ -943,6 +1204,7 @@ function cardMenu(id) {
   };
   menuSheet(c.name, [
     { label: '편집', icon: I.edit, onClick: () => go('#/edit/' + c.id) },
+    { label: '묶음 이동', icon: I.folder, onClick: () => moveGroupSheet(c) },
     { label: '복제', icon: I.copy, onClick: () => { duplicateCalc(c); render(); } },
     ...(idx > 0 ? [{ label: '앞으로 이동', icon: I.up, onClick: () => move(-1) }] : []),
     ...(idx < db.calcs.length - 1 ? [{ label: '뒤로 이동', icon: I.down, onClick: () => move(1) }] : []),
@@ -975,13 +1237,15 @@ function homeMenu() {
   menuSheet('메뉴', [
     { label: '백업 파일로 내보내기', icon: I.download, onClick: exportBackup },
     { label: '백업 파일 불러오기', icon: I.upload, onClick: () => document.getElementById('importFile').click() },
-    { label: '예제 계산기 추가', icon: I.sparkle, onClick: () => { db.calcs.push(...seedCalcs()); persist(); render(); toast('예제 계산기 3개를 추가했어요'); } },
+    { label: '예제 계산기 추가', icon: I.sparkle, onClick: () => { db.calcs.push(...seedCalcs()); syncGroups(); persist(); render(); toast('예제 계산기 3개를 추가했어요'); } },
     '-',
-    { label: '설치 · 사용 안내', icon: I.info, onClick: showInfo },
+    { label: '새 묶음 만들기', icon: I.folder, onClick: () => newGroupSheet() },
+    { label: '앱으로 설치하기', icon: I.phone, onClick: doInstall },
+    { label: '사용 안내', icon: I.info, onClick: showInfo },
   ]);
 }
 async function exportBackup() {
-  const data = { app: 'custom-calculator', version: 1, exportedAt: new Date().toISOString(), calcs: db.calcs };
+  const data = { app: 'custom-calculator', version: 1, exportedAt: new Date().toISOString(), groups: db.groups, calcs: db.calcs };
   const json = JSON.stringify(data, null, 2);
   const d = new Date();
   const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
@@ -1011,9 +1275,10 @@ document.getElementById('importFile').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   e.target.value = '';
   if (!file) return;
-  let calcs;
+  let calcs, groups = [];
   try {
     const data = JSON.parse(await file.text());
+    if (Array.isArray(data.groups)) groups = data.groups.filter((g) => typeof g === 'string');
     calcs = (Array.isArray(data) ? data : data.calcs || []).filter(validCalc);
   } catch { calcs = null; }
   if (!calcs || !calcs.length) return toast('불러올 수 있는 계산기가 없는 파일이에요', true);
@@ -1026,8 +1291,8 @@ document.getElementById('importFile').addEventListener('change', async (e) => {
     title: '백업 불러오기',
     html: `<p>계산기 ${calcs.length}개를 찾았어요. 어떻게 불러올까요?</p>`,
     actions: [
-      { label: '전체 바꾸기', kind: 'danger', onClick: () => { db.calcs = clone(calcs); db.session = {}; persist(); render(); toast('백업으로 바꿨어요'); } },
-      { label: '기존에 추가', kind: 'primary', onClick: () => { db.calcs.push(...fresh()); persist(); render(); toast(`${calcs.length}개를 추가했어요`); } },
+      { label: '전체 바꾸기', kind: 'danger', onClick: () => { db.calcs = clone(calcs); db.groups = groups.slice(); db.session = {}; syncGroups(); persist(); render(); toast('백업으로 바꿨어요'); } },
+      { label: '기존에 추가', kind: 'primary', onClick: () => { db.groups.push(...groups); db.calcs.push(...fresh()); syncGroups(); persist(); render(); toast(`${calcs.length}개를 추가했어요`); } },
     ],
   });
 });
@@ -1042,10 +1307,15 @@ function showInfo() {
         <li>폴더 안의 <b>설치.bat</b>을 더블클릭하면 바탕화면과 시작 메뉴에 “맞춤 계산기” 바로가기가 생깁니다.</li>
         <li>바로가기를 누르면 주소창 없는 앱 창으로 열립니다. 인터넷 연결이 없어도 됩니다.</li>
       </ol>
-      <h4>웹 주소에서 앱으로 설치 (PC · 휴대폰)</h4>
+      <h4>휴대폰에 앱으로 설치</h4>
       <ul>
-        <li>크롬/엣지: 주소창 오른쪽의 <b>앱 설치</b> 아이콘 또는 메뉴 → “앱 설치”.</li>
-        <li>아이폰 사파리: 공유 → “홈 화면에 추가”.</li>
+        <li>계산기 웹 주소를 폰 브라우저로 열고 메인 화면의 <b>앱 설치</b> 버튼을 누르세요.</li>
+        <li>안드로이드 크롬: 바로 설치 창이 떠요. 아이폰 사파리: 공유 → “홈 화면에 추가”.</li>
+      </ul>
+      <h4>묶음</h4>
+      <ul>
+        <li>계산기를 원하는 이름의 묶음으로 나눌 수 있어요. 계산기 편집 화면의 “묶음” 칸이나 카드 메뉴의 “묶음 이동”을 쓰세요.</li>
+        <li>메인 화면 위쪽 탭으로 묶음별로 볼 수 있어요.</li>
       </ul>
       <h4>데이터 보관</h4>
       <ul>
@@ -1056,6 +1326,7 @@ function showInfo() {
       <ul>
         <li>입력칸에 <b>10+5</b>, <b>3×12.5</b> 같은 식을 바로 써도 됩니다. Enter 또는 = 로 계산 결과로 바뀝니다.</li>
         <li>결과 화면의 복사 버튼을 누르면 숫자만 복사돼 엑셀에 붙여넣기 좋습니다.</li>
+        <li>품목·원료 검색칸에서 초성(예: ㅇㄷ → 원단)으로도 찾을 수 있어요.</li>
       </ul>
       ${local ? '<p class="help" style="margin-top:12px">현재 파일로 직접 열려 있어요 (오프라인 모드).</p>' : ''}
     </div>`,
@@ -1132,12 +1403,18 @@ function calcPanel(c, s) {
         <button class="btn primary sm" data-act="quick-add">${I.plus}품목 등록</button></div>`;
     }
     const many = c.items.length > 8;
+    const cur = c.items.find((i) => i.id === s.itemId);
+    // 항목이 많으면 칩은 최근 사용한 것만, 나머지는 검색으로
+    const chipItems = many
+      ? [...new Set([s.itemId, ...s.recent, ...c.items.map((i) => i.id)])].map((id) => c.items.find((i) => i.id === id)).filter(Boolean).slice(0, 6)
+      : c.items;
     return `
       <div>
-        <div class="panel-head"><h2 id="itemsLabel">품목</h2><button class="link-btn" data-act="edit-calc">베이스 데이터 관리</button></div>
-        ${many ? '<input class="search" type="search" placeholder="품목 검색" data-act="item-search" aria-label="품목 검색" style="margin:6px 0 8px">' : ''}
-        <div class="chips" role="radiogroup" aria-labelledby="itemsLabel" style="margin-top:${many ? 0 : 6}px">
-          ${c.items.map((it) => `<button class="chip" role="radio" data-act="pick-item" data-id="${it.id}" aria-checked="${it.id === s.itemId}" data-name="${esc(it.name.toLowerCase())}"><span>${esc(it.name)}</span></button>`).join('')}
+        <div class="panel-head"><h2 id="itemsLabel">품목<span class="count">${c.items.length}</span></h2><button class="link-btn" data-act="edit-calc">베이스 데이터 관리</button></div>
+        ${c.items.length > 5 ? `<div style="margin-top:8px">${comboHTML('cb-item', 'item', '', cur ? cur.name : '', '품목 검색 (초성 가능: ㅇㄷ → 원단)')}</div>` : ''}
+        <div class="chips" role="radiogroup" aria-labelledby="itemsLabel" style="margin-top:10px">
+          ${many ? '<span class="chips-label">최근</span>' : ''}
+          ${chipItems.map((it) => `<button class="chip" role="radio" data-act="pick-item" data-id="${it.id}" aria-checked="${it.id === s.itemId}"><span>${esc(it.name)}</span></button>`).join('')}
           <button class="chip add" data-act="quick-add" aria-label="품목 추가">${I.plus}<span>추가</span></button>
         </div>
       </div>
@@ -1162,16 +1439,12 @@ function calcPanel(c, s) {
         </div>`).join('')}`;
   }
   // blend
-  const opts = (row) => `
-    ${c.materials.map((m) => `<option value="${m.id}" ${row.mat === m.id ? 'selected' : ''}>${esc(m.name)} (${fmt(numOrNaN(m.value), 4)}%)</option>`).join('')}
-    <option value="custom" ${row.mat === 'custom' ? 'selected' : ''}>직접 입력</option>
-    <option value="__new">+ 새 원료 등록…</option>`;
   return `
     <div class="panel-head"><h2>원료 · 투입량</h2><button class="link-btn" data-act="edit-calc">베이스 데이터 관리</button></div>
     <div class="brows" id="brows">
       ${s.rows.map((row, i) => `
         <div class="brow${row.mat === 'custom' ? ' has-custom' : ''}" data-row="${row.id}">
-          <select class="select" data-act="row-mat" data-row="${row.id}" aria-label="${i + 1}번 원료">${opts(row)}</select>
+          ${comboHTML('cb-' + row.id, 'mat', row.id, matLabel(c, row), '원료 검색', true)}
           <button class="mini-btn del" data-act="row-del" data-row="${row.id}" aria-label="${i + 1}번 행 삭제">${I.x}</button>
           ${row.mat === 'custom' ? `<div class="custom">${inputField('bl-c-' + row.id, row.custom, '%', `data-row="${row.id}" data-bfield="custom" aria-label="${i + 1}번 ${esc(c.propName)} %"`, true)}</div>` : ''}
           <div class="amount">${inputField('bl-a-' + row.id, row.amount, c.amountUnit, `data-row="${row.id}" data-bfield="amount" aria-label="${i + 1}번 투입량"`, true)}</div>
@@ -1182,6 +1455,127 @@ function calcPanel(c, s) {
       <button class="btn sm" data-act="row-add" style="flex:1">${I.plus}원료 추가</button>
       <button class="btn sm ghost" data-act="clear-all">모두 지우기</button>
     </div>`;
+}
+
+/* ---------- 검색 자동완성 (콤보박스) ---------- */
+const CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+const choOf = (ch) => { const k = ch.charCodeAt(0) - 0xAC00; return k >= 0 && k < 11172 ? CHO[Math.floor(k / 588)] : ch.toLowerCase(); };
+const isCho = (ch) => ch >= 'ㄱ' && ch <= 'ㅎ';
+/** label 안에서 q 를 찾음. 초성(ㅇㄷ)과 글자를 섞어 써도 됨. 못 찾으면 null */
+function findMatch(label, q) {
+  const L = [...label];
+  const Q = [...q.toLowerCase()];
+  if (!Q.length) return { at: 0, len: 0 };
+  outer: for (let i = 0; i + Q.length <= L.length; i++) {
+    for (let j = 0; j < Q.length; j++) {
+      const a = L[i + j], b = Q[j];
+      if (isCho(b) ? (choOf(a) !== b && a !== b) : a.toLowerCase() !== b) continue outer;
+    }
+    return { at: i, len: Q.length };
+  }
+  return null;
+}
+function highlight(label, m) {
+  if (!m || !m.len) return esc(label);
+  const L = [...label];
+  return esc(L.slice(0, m.at).join('')) + '<mark>' + esc(L.slice(m.at, m.at + m.len).join('')) + '</mark>' + esc(L.slice(m.at + m.len).join(''));
+}
+function matLabel(c, row) {
+  if (row.mat === 'custom') return '직접 입력';
+  return c.materials.find((m) => m.id === row.mat)?.name || '';
+}
+function comboHTML(id, kind, row, label, placeholder, sm = false) {
+  return `<div class="combo${sm ? ' sm' : ''}" data-combo="${kind}" data-row="${row}" data-label="${esc(label)}">
+    <div class="combo-field">${sm ? '' : I.search}<input id="${id}" class="combo-input" type="text" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="${id}-list" aria-label="${esc(placeholder)}" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" placeholder="${esc(placeholder)}" value="${esc(label)}">${I.chev.replace('<svg', '<svg style="width:16px;height:16px;color:var(--muted);flex:none"')}</div>
+    <ul class="combo-list" id="${id}-list" role="listbox" hidden></ul>
+  </div>`;
+}
+function comboContext(combo) {
+  const c = getCalc(parseRoute().id);
+  if (!c) return null;
+  const s = session(c);
+  const kind = combo.dataset.combo;
+  const row = kind === 'mat' ? s.rows.find((r) => r.id === combo.dataset.row) : null;
+  const cur = kind === 'item' ? s.itemId : row?.mat;
+  return { c, s, kind, row, cur };
+}
+function renderComboList(input) {
+  const combo = input.closest('.combo');
+  const ctx = comboContext(combo);
+  if (!ctx) return;
+  const { c, kind, cur } = ctx;
+  const q = input.value.trim();
+  combo._q = q;
+  const base = kind === 'item'
+    ? c.items.map((it) => ({ v: it.id, label: it.name, sub: `${fmt(numOrNaN(it.factor), 6)} ${c.unitB}/${c.unitA}` }))
+    : c.materials.map((m) => ({ v: m.id, label: m.name, sub: `${fmt(numOrNaN(m.value), 4)}%` }));
+  const matched = [];
+  for (const o of base) { const m = findMatch(o.label, q); if (m) matched.push({ ...o, m }); }
+  matched.sort((a, b) => a.m.at - b.m.at);
+  const exact = q && base.some((o) => o.label.toLowerCase() === q.toLowerCase());
+  const specials = [];
+  if (kind === 'mat') specials.push({ v: 'custom', label: '직접 입력', sub: `${c.propName} %를 직접 입력` });
+  if (!exact) specials.push({ v: '__new', label: q ? `“${q}” ${kind === 'item' ? '새 품목' : '새 원료'}으로 등록` : `+ ${kind === 'item' ? '새 품목' : '새 원료'} 등록` });
+  const shown = matched.slice(0, 80);
+  const all = [...shown, ...specials.map((o) => ({ ...o, special: true }))];
+  combo._opts = all;
+  const list = combo.querySelector('.combo-list');
+  let sel = q ? 0 : Math.max(0, all.findIndex((o) => o.v === cur));
+  if (q && !shown.length) sel = all.length - 1;
+  list.innerHTML = (q && !matched.length ? `<li class="combo-empty">‘${esc(q)}’ 와 맞는 항목이 없어요</li>` : '')
+    + all.map((o, i) => `<li class="combo-opt${o.special ? ' special' : ''}" role="option" id="${list.id}-${i}" data-i="${i}" aria-selected="${i === sel}"><b>${o.special ? esc(o.label) : highlight(o.label, o.m)}</b>${o.sub ? `<small>${esc(o.sub)}</small>` : ''}${o.v === cur ? I.check : ''}</li>`).join('')
+    + (matched.length > shown.length ? `<li class="combo-empty">${matched.length - shown.length}개 더 있어요. 검색어를 더 입력하세요</li>` : '');
+  list.hidden = false;
+  input.setAttribute('aria-expanded', 'true');
+  setComboSel(combo, sel, !q);
+}
+function setComboSel(combo, i, center = false) {
+  const opts = combo.querySelectorAll('.combo-opt');
+  if (!opts.length) return;
+  i = (i + opts.length) % opts.length;
+  opts.forEach((o, k) => o.setAttribute('aria-selected', String(k === i)));
+  combo._sel = i;
+  combo.querySelector('.combo-input').setAttribute('aria-activedescendant', opts[i].id);
+  const list = combo.querySelector('.combo-list');
+  const el = opts[i];
+  if (center) list.scrollTop = el.offsetTop - list.clientHeight / 2 + el.clientHeight / 2;
+  else if (el.offsetTop < list.scrollTop) list.scrollTop = el.offsetTop;
+  else if (el.offsetTop + el.offsetHeight > list.scrollTop + list.clientHeight) list.scrollTop = el.offsetTop + el.offsetHeight - list.clientHeight;
+}
+function closeCombo(combo, restore = true) {
+  const input = combo.querySelector('.combo-input');
+  combo.querySelector('.combo-list').hidden = true;
+  input.setAttribute('aria-expanded', 'false');
+  input.removeAttribute('aria-activedescendant');
+  if (restore) input.value = combo.dataset.label;
+}
+function pushRecent(s, id) { s.recent = [id, ...(s.recent || []).filter((x) => x !== id)].slice(0, 8); }
+function chooseCombo(combo, i) {
+  const ctx = comboContext(combo);
+  const o = combo._opts?.[i];
+  if (!ctx || !o) return;
+  const { c, s, kind, row } = ctx;
+  const q = combo._q || '';
+  closeCombo(combo);
+  combo.querySelector('.combo-input').blur();
+  if (kind === 'item') {
+    if (o.v === '__new') return quickAddItem(c, (item) => { s.itemId = item.id; pushRecent(s, item.id); renderCalc(c); }, q);
+    s.itemId = o.v;
+    pushRecent(s, o.v);
+    persist();
+    renderCalc(c);
+  } else {
+    setRowMat(c, row, o.v, q);
+  }
+}
+function setRowMat(c, row, v, q = '') {
+  if (!row) return;
+  if (v === '__new') return quickAddItem(c, (m) => { row.mat = m.id; persist(); renderCalc(c); }, q);
+  row.mat = v;
+  persist();
+  calcUI.activeId = v === 'custom' ? 'bl-c-' + row.id : 'bl-a-' + row.id;
+  renderCalc(c);
+  if (!isTouch()) document.getElementById(calcUI.activeId)?.focus();
 }
 
 /** 입력값이 바뀔 때마다 결과(LCD)와 연동 칸만 갱신 (입력칸은 다시 그리지 않음 → 커서 유지) */
@@ -1342,16 +1736,17 @@ function clearAll(c) {
   renderCalc(c);
 }
 
-function quickAddItem(c, onAdded) {
+function quickAddItem(c, onAdded, presetName = '') {
   const isBlend = c.type === 'blend';
   const html = isBlend
-    ? `<label class="f"><span>원료 이름</span><input class="txt" id="qa-name" placeholder="예: 바인더 X"></label>
+    ? `<label class="f"><span>원료 이름</span><input class="txt" id="qa-name" placeholder="예: 바인더 X" value="${esc(presetName)}"></label>
        <label class="f"><span>${esc(c.propName)} (%)</span><div class="input-wrap sm"><input id="qa-val" inputmode="decimal" placeholder="0"><span class="unit">%</span></div></label>`
-    : `<label class="f"><span>품목 이름</span><input class="txt" id="qa-name" placeholder="예: 원단 C"></label>
+    : `<label class="f"><span>품목 이름</span><input class="txt" id="qa-name" placeholder="예: 원단 C" value="${esc(presetName)}"></label>
        <label class="f"><span>기준값: 1 ${esc(c.unitA)} 당 ${esc(c.unitB)}</span><div class="input-wrap sm"><input id="qa-val" inputmode="decimal" placeholder="0"><span class="unit">${esc(c.unitB)}/${esc(c.unitA)}</span></div></label>
        <p class="help">예: 1 ${esc(c.unitA)} = 10 ${esc(c.unitB)} 이면 10 입력. 나눗셈 식(1000/80)도 가능해요.</p>`;
   openSheet({
     title: isBlend ? '새 원료 등록' : '새 품목 등록', html,
+    onMount: (el) => { if (presetName) el.querySelector('#qa-val').focus(); },
     actions: [
       { label: '취소' },
       {
@@ -1363,6 +1758,8 @@ function quickAddItem(c, onAdded) {
           valEl.closest('.input-wrap').classList.toggle('invalid', !v.ok);
           if (!name) { nameEl.focus(); return false; }
           if (!v.ok) { valEl.focus(); return false; }
+          const list = isBlend ? c.materials : c.items;
+          if (list.some((x) => x.name === name)) { nameEl.classList.add('invalid'); toast('같은 이름이 이미 있어요', true); nameEl.focus(); return false; }
           const item = { id: uid(), name, [isBlend ? 'value' : 'factor']: v.value };
           (isBlend ? c.materials : c.items).push(item);
           c.updatedAt = Date.now();
@@ -1382,10 +1779,11 @@ function toDraft(c) {
   const d = clone(c);
   (d.items || []).forEach((x) => { x.factor = String(x.factor ?? ''); });
   (d.materials || []).forEach((x) => { x.value = String(x.value ?? ''); });
+  d.group = d.group || '';
   return d;
 }
-function blankDraft(type) {
-  const base = { id: uid(), type, name: '', desc: '', decimals: 2 };
+function blankDraft(type, group = '') {
+  const base = { id: uid(), type, name: '', desc: '', group, decimals: 2 };
   if (type === 'convert') return { ...base, labelA: '길이', unitA: 'm', labelB: '무게', unitB: 'g', items: [{ id: uid(), name: '', factor: '' }] };
   if (type === 'formula') return {
     ...base,
@@ -1435,6 +1833,11 @@ function renderEditor() {
           <h2>기본 정보</h2>
           <label class="f"><span>계산기 이름</span><input class="txt" ${bindAttr('name', `placeholder="${d.type === 'convert' ? '예: 원단 길이-무게 변환기' : d.type === 'formula' ? '예: 고형분 계산기' : '예: 배합 고형분 계산기'}" maxlength="40"`)}></label>
           <label class="f"><span>설명 (선택)</span><input class="txt" ${bindAttr('desc', 'placeholder="메인 화면 카드에 표시돼요" maxlength="60"')}></label>
+          <div class="f">
+            <label for="edGroup"><span style="font-size:13px;color:var(--muted);font-weight:600;margin-left:4px">묶음 (선택)</span></label>
+            <input class="txt" id="edGroup" ${bindAttr('group', 'placeholder="새 이름을 쓰거나 아래에서 고르세요 · 비우면 미분류" maxlength="20" autocomplete="off" data-group-input')}>
+            ${db.groups.length ? `<div class="chips gchips">${db.groups.map((g) => `<button type="button" class="chip sm" data-act="pick-group" data-g="${esc(g)}" aria-pressed="${(d.group || '') === g}">${esc(g)}</button>`).join('')}</div>` : ''}
+          </div>
           <div class="f">
             <span>결과 소수점 자리수</span>
             <div class="stepper-row">
@@ -1593,6 +1996,7 @@ function validateDraft(d) {
   const out = clone(d);
   out.name = out.name.trim();
   out.desc = (out.desc || '').trim();
+  out.group = String(out.group || '').trim().slice(0, 20);
   if (!out.name) return fail('계산기 이름을 입력하세요', 'name');
   if (d.type === 'convert') {
     out.unitA = out.unitA.trim(); out.unitB = out.unitB.trim();
@@ -1675,6 +2079,7 @@ function saveEditor() {
     calc.createdAt = Date.now();
     db.calcs.push(calc);
   }
+  syncGroups();
   if (calc.type === 'blend' && db.session[calc.id]?.rows) {
     db.session[calc.id].rows.forEach((r) => { if (r.mat !== 'custom' && !calc.materials.some((m) => m.id === r.mat)) r.mat = calc.materials[0]?.id || 'custom'; });
   }
@@ -1760,10 +2165,12 @@ function insertAtCursor(input, text) {
    ========================================================= */
 $app.addEventListener('pointerdown', (e) => {
   // 키패드를 눌러도 입력칸 포커스가 유지되도록
-  if (e.target.closest('.key, .var-chip')) e.preventDefault();
+  if (e.target.closest('.key, .var-chip, .combo-opt, .combo-list')) e.preventDefault();
 });
 
 $app.addEventListener('click', (e) => {
+  const opt = e.target.closest('.combo-opt');
+  if (opt) return chooseCombo(opt.closest('.combo'), +opt.dataset.i);
   const keyBtn = e.target.closest('[data-key]');
   const r = parseRoute();
   if (keyBtn && r.name === 'calc') { const c = getCalc(r.id); if (c) keypadPress(c, keyBtn.dataset.key); return; }
@@ -1775,7 +2182,11 @@ $app.addEventListener('click', (e) => {
   // ---- 메인 ----
   if (act === 'open') return go('#/calc/' + b.dataset.id);
   if (act === 'card-menu') return cardMenu(b.dataset.id);
-  if (act === 'new') return openTypePicker();
+  if (act === 'new') return openTypePicker(b.dataset.g || '');
+  if (act === 'group-filter') { db.prefs.groupFilter = b.dataset.g; persist(); const y = window.scrollY; renderHome(); window.scrollTo(0, y); return; }
+  if (act === 'group-new') return newGroupSheet();
+  if (act === 'group-menu') return groupMenu(b.dataset.g);
+  if (act === 'install') return doInstall();
   if (act === 'home-menu') return homeMenu();
   if (act === 'show-info') return showInfo();
 
@@ -1791,7 +2202,10 @@ $app.addEventListener('click', (e) => {
     if (act === 'clear-all') return clearAll(c);
     if (act === 'pick-item') {
       s.itemId = b.dataset.id;
+      pushRecent(s, s.itemId);
       $app.querySelectorAll('[data-act="pick-item"]').forEach((x) => x.setAttribute('aria-checked', String(x === b)));
+      const cb = $app.querySelector('.combo[data-combo="item"]');
+      if (cb) { cb.dataset.label = c.items.find((i) => i.id === s.itemId)?.name || ''; cb.querySelector('.combo-input').value = cb.dataset.label; }
       updateCalc(c); persistSoon();
       if (!isTouch()) getActiveInput()?.focus({ preventScroll: true });
       return;
@@ -1844,6 +2258,13 @@ $app.addEventListener('click', (e) => {
       return;
     }
     if (act === 'paste') return openPaste(b.dataset.list);
+    if (act === 'pick-group') {
+      d.group = d.group === b.dataset.g ? '' : b.dataset.g;
+      editor.dirty = true;
+      $app.querySelector('#edGroup').value = d.group;
+      $app.querySelectorAll('[data-act="pick-group"]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.g === d.group)));
+      return;
+    }
     if (act === 'ins') {
       const input = $app.querySelector(`[data-bind="outputs.${b.dataset.i}.formula"]`);
       if (input) insertAtCursor(input, b.dataset.text);
@@ -1882,20 +2303,18 @@ $app.addEventListener('input', (e) => {
     return;
   }
   if (r.name === 'home' && el.dataset.act === 'calc-search') {
-    const q = el.value.trim().toLowerCase();
+    const q = el.value.trim();
     let shown = 0;
-    $app.querySelectorAll('.card[data-search]').forEach((card) => { card.hidden = !!q && !card.dataset.search.includes(q); if (!card.hidden) shown++; });
-    $app.querySelector('.card.add').hidden = !!q;
+    $app.querySelectorAll('.card[data-search]').forEach((card) => { card.hidden = !!q && !findMatch(card.dataset.search, q); if (!card.hidden) shown++; });
+    $app.querySelectorAll('.card.add').forEach((x) => { x.hidden = !!q; });
+    $app.querySelectorAll('.group').forEach((g) => { g.hidden = !!q && !g.querySelector('.card[data-search]:not([hidden])'); });
     $app.querySelector('#noResult').hidden = !q || shown > 0;
     return;
   }
-  if (r.name === 'calc' && el.dataset.act === 'item-search') {
-    const q = el.value.trim().toLowerCase();
-    $app.querySelectorAll('[data-act="pick-item"]').forEach((chip) => { chip.hidden = !!q && !chip.dataset.name.includes(q); });
-    return;
-  }
+  if (r.name === 'calc' && el.classList.contains('combo-input')) return renderComboList(el);
   if (editor && el.dataset.bind) {
     setPath(editor.draft, el.dataset.bind, el.value);
+    if (el.hasAttribute('data-group-input')) $app.querySelectorAll('[data-act="pick-group"]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.g === el.value.trim())));
     editor.dirty = true;
     el.classList.remove('invalid');
     el.closest('.input-wrap')?.classList.remove('invalid');
@@ -1916,29 +2335,46 @@ $app.addEventListener('change', (e) => {
   const c = getCalc(r.id);
   if (!c) return;
   if (el.matches('input[data-calc]')) return commitExpr(c, el);
-  if (el.dataset.act === 'row-mat') {
-    const s = session(c);
-    const row = s.rows.find((x) => x.id === el.dataset.row);
-    if (!row) return;
-    if (el.value === '__new') {
-      el.value = row.mat;
-      return quickAddItem(c, (m) => { row.mat = m.id; renderCalc(c); });
-    }
-    row.mat = el.value;
-    persist();
-    calcUI.activeId = row.mat === 'custom' ? 'bl-c-' + row.id : 'bl-a-' + row.id;
-    renderCalc(c);
-    if (!isTouch()) document.getElementById(calcUI.activeId)?.focus();
-  }
 });
 
 $app.addEventListener('focusin', (e) => {
   if (e.target.matches('input[data-calc]') && calcUI) setActive(e.target);
+  if (e.target.classList.contains('combo-input')) {
+    const input = e.target;
+    clearTimeout(input.closest('.combo')._t);
+    input.select();
+    renderComboList(Object.assign(input, { value: '' }));
+    input.value = input.closest('.combo').dataset.label;
+    input.select();
+  }
+});
+$app.addEventListener('focusout', (e) => {
+  if (!e.target.classList.contains('combo-input')) return;
+  const combo = e.target.closest('.combo');
+  combo._t = setTimeout(() => { if (document.contains(combo)) closeCombo(combo); }, 300);
 });
 
 $app.addEventListener('keydown', (e) => {
   const el = e.target;
   const r = parseRoute();
+  if (el.classList.contains('combo-input')) {
+    const combo = el.closest('.combo');
+    const open = !combo.querySelector('.combo-list').hidden;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (!open) renderComboList(el);
+      else setComboSel(combo, (combo._sel ?? -1) + (e.key === 'ArrowDown' ? 1 : -1));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (open) chooseCombo(combo, combo._sel ?? 0);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      closeCombo(combo);
+      el.blur();
+    }
+    return;
+  }
   if (r.name === 'calc' && el.matches('input[data-calc]') && e.key === 'Enter') {
     e.preventDefault();
     const c = getCalc(r.id);

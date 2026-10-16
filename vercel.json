@@ -1,3 +1,19 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "redirects": [
+    {
+      "source": "/calculator",
+      "destination": "/calculator/",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/calculator/",
+      "destination": "/calculator/index.html"
+    },
+    {
+      "source": "/((?!calculator/).*)",
+      "destination": "/index.html"
+    }
+  ]
 }
